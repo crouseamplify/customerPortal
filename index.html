@@ -197,7 +197,7 @@ function flowPanel(a, host, nodeId) {
   if (f.purpose) out.push(`<p>${esc(f.purpose)}</p>`);
   if (f.placedOn.length) { out.push('<h3>Placed on</h3>'); const d = document.createElement('div'); f.placedOn.forEach(p => { const r = document.createElement('div'); r.appendChild(lnk(pageTitle(p.page), () => { show('site'); siteSelect(p.page); })); r.appendChild(document.createTextNode(p.location==='page'?'':' → '+p.location)); const args = Object.entries(p.args||{}); if (args.length) r.appendChild(html(`<span class="muted" style="font-size:12px"> (${args.map(([k,v])=>esc(k)+'='+esc(v)).join(', ')})</span>`)); d.appendChild(r); }); out.push(d); }
   if (f.launchedByLwc) out.push(`<h3>Launched by LWC</h3><code>${esc(f.launchedByLwc)}</code>`);
-  out.push('<h3>Calls subflows</h3>'); out.push(flowLinks(f.calls));
+  out.push('<h3>Calls subflows (click a SUBFLOW box in the diagram to open it)</h3>'); out.push(flowLinks(f.calls));
   out.push('<h3>Called by</h3>'); out.push(flowLinks(f.calledBy.filter(x => x !== a).slice(0, 30)));
   const ob = f.objects;
   const rows = [['Reads', ob.read], ['Creates', ob.create], ['Updates', ob.update], ['Deletes', ob.delete]].filter(r => r[1].length);
@@ -278,14 +278,27 @@ function goStep(i) {
 }
 
 /* ---------- flows ---------- */
-let curFlow = null;
-function openFlow(a) { show('flows'); renderFlow(a); }
-function renderFlow(a, nodeId) {
-  if (!M.flows[a]) return; curFlow = a;
+let curFlow = null, trail = [];
+function openFlow(a) { const inFlows = curFlow && $('#t-flows').classList.contains('on'); show('flows'); renderFlow(a, {push: inFlows}); }
+function crumbs(a) {
+  const host = $('#f-detail'); if (trail.length < 2) return;
+  const bar = document.createElement('div'); bar.className = 'box'; bar.style.fontSize = '12px';
+  const back = document.createElement('button'); back.className = 'btn'; back.textContent = 'Back'; back.onclick = () => { trail.pop(); renderFlow(trail[trail.length-1], {keep:true}); };
+  bar.appendChild(back); bar.appendChild(document.createTextNode('  '));
+  trail.forEach((t, i) => { if (i) bar.appendChild(document.createTextNode(' › ')); if (i === trail.length-1) bar.appendChild(html('<b>'+esc(label(t))+'</b>')); else bar.appendChild(lnk(label(t), () => { trail = trail.slice(0, i+1); renderFlow(t, {keep:true}); })); });
+  host.insertBefore(bar, host.firstChild);
+}
+function renderFlow(a, opt) {
+  opt = opt || {}; if (!M.flows[a]) return; curFlow = a;
+  if (opt.keep) { /* trail already set */ } else if (opt.push && trail.length) trail.push(a); else trail = [a];
   document.querySelectorAll('#f-list li').forEach(li => li.classList.toggle('on', li.dataset.a===a));
-  const key = a; if (!SVG.flows[key]) { $('#f-stage').innerHTML = '<p style="padding:20px">No diagram for this flow.</p>'; flowPanel(a, $('#f-detail')); return; }
-  V.flows = viewer($('#f-stage'), SVG.flows[key], id => { V.flows.select(id); flowPanel(a, $('#f-detail'), id); });
-  flowPanel(a, $('#f-detail'));
+  const detail = nodeId => { flowPanel(a, $('#f-detail'), nodeId); crumbs(a); };
+  if (!SVG.flows[a]) { $('#f-stage').innerHTML = '<p style="padding:20px">No diagram for this flow.</p>'; detail(); return; }
+  V.flows = viewer($('#f-stage'), SVG.flows[a], id => {
+    const n = Object.entries(M.flows[a].graph.nodes).find(([k]) => nid(a, k) === id);
+    if (n && n[1].type === 'subflow' && M.flows[n[1].flow]) { renderFlow(n[1].flow, {push: true}); return; }
+    V.flows.select(id); detail(id); });
+  detail();
 }
 INIT.flows = () => {
   const host = $('#f-list'); const groups = [['page','Screen flows on pages'],['subflow','Subflows'],['legacy','Legacy']];
