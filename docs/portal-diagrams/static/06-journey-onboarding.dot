@@ -1,0 +1,36 @@
+digraph G {
+  graph [fontname="Helvetica", rankdir=TB, bgcolor="white", pad=0.3, nodesep=0.35, ranksep=0.5, newrank=true, compound=true];
+  label=<<B>Journey 3: Onboarding a new customer (Primary Onboarding Contact)</B>>; labelloc=t; labeljust=l; fontsize=15; fontname="Helvetica";
+  node [fontname="Helvetica", fontsize=10, margin="0.12,0.07"];
+  edge [fontname="Helvetica", fontsize=9, color="#607D8B", arrowsize=0.8];
+ranksep=0.55;
+
+    o0 [label=<Primary Onboarding Contact<BR/>logs in<BR/><FONT POINT-SIZE="8" COLOR="#555555">personalised home: contact</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">management,</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">digital logistics, order</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">management, PD</FONT>>, shape="box", style="rounded,filled", fillcolor="#FFFDE7", color="#F57F17", class="n-person", id="o0"];
+    o1 [label=<<FONT POINT-SIZE="8" COLOR="#555555">PAGE · LOGIN REQUIRED</FONT><BR/>Contact Management<BR/><FONT POINT-SIZE="8" COLOR="#555555">/contact-management</FONT>>, shape="box", style="rounded,filled", fillcolor="#FFF3E0", color="#E65100", class="n-page_login", id="o1"];
+    o1a [label=<<FONT POINT-SIZE="8" COLOR="#555555">SCREEN FLOW</FONT><BR/>Onboarding Checklist<BR/><FONT POINT-SIZE="8" COLOR="#555555">finds or creates the checklist,</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">counts contact types</FONT>>, shape="box", style="rounded,filled", fillcolor="#D1C4E9", color="#4527A0", class="n-flow", id="o1a"];
+    o1b [label=<<FONT POINT-SIZE="8" COLOR="#555555">SCREEN FLOW</FONT><BR/>Display Contacts (cmp)<BR/><FONT POINT-SIZE="8" COLOR="#555555">add / edit / invite / remove</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">access</FONT>>, shape="box", style="rounded,filled", fillcolor="#D1C4E9", color="#4527A0", class="n-flow", id="o1b"];
+    o1c [label=<Onboarding Checklist, Contact,<BR/>Affiliation>, shape="cylinder", style="filled", fillcolor="#C8E6C9", color="#1B5E20", class="n-write", id="o1c"];
+    o2 [label=<<FONT POINT-SIZE="8" COLOR="#555555">PAGE · LOGIN REQUIRED</FONT><BR/>Digital Onboarding<BR/><FONT POINT-SIZE="8" COLOR="#555555">/digital-onboarding</FONT>>, shape="box", style="rounded,filled", fillcolor="#FFF3E0", color="#E65100", class="n-page_login", id="o2"];
+    o2a [label=<<FONT POINT-SIZE="8" COLOR="#555555">SCREEN FLOW</FONT><BR/>Key Dates and Rostering<BR/><FONT POINT-SIZE="8" COLOR="#555555">Technical contact updates the</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">Technical Onboarding Case</FONT>>, shape="box", style="rounded,filled", fillcolor="#D1C4E9", color="#4527A0", class="n-flow", id="o2a"];
+    o2b [label=<<FONT POINT-SIZE="8" COLOR="#555555">SCREEN FLOW</FONT><BR/>Display Contacts (dop)<BR/><FONT POINT-SIZE="8" COLOR="#555555">technical contacts</FONT>>, shape="box", style="rounded,filled", fillcolor="#D1C4E9", color="#4527A0", class="n-flow", id="o2b"];
+    o3 [label=<<FONT POINT-SIZE="8" COLOR="#555555">PAGE · LOGIN REQUIRED</FONT><BR/>Order Management<BR/><FONT POINT-SIZE="8" COLOR="#555555">/order-management</FONT>>, shape="box", style="rounded,filled", fillcolor="#FFF3E0", color="#E65100", class="n-page_login", id="o3"];
+    o3a [label=<<FONT POINT-SIZE="8" COLOR="#555555">SCREEN FLOW</FONT><BR/>Shipping addresses<BR/><FONT POINT-SIZE="8" COLOR="#555555">view, add, edit</FONT>>, shape="box", style="rounded,filled", fillcolor="#D1C4E9", color="#4527A0", class="n-flow", id="o3a"];
+    o3b [label=<<FONT POINT-SIZE="8" COLOR="#555555">SCREEN FLOW</FONT><BR/>Display Contacts (omp)<BR/><FONT POINT-SIZE="8" COLOR="#555555">materials contacts</FONT>>, shape="box", style="rounded,filled", fillcolor="#D1C4E9", color="#4527A0", class="n-flow", id="o3b"];
+    o3c [label=<<FONT POINT-SIZE="8" COLOR="#555555">SCREEN FLOW</FONT><BR/>Orders: BSO list<BR/><FONT POINT-SIZE="8" COLOR="#555555">-&gt; allocation journey</FONT>>, shape="box", style="rounded,filled", fillcolor="#D1C4E9", color="#4527A0", class="n-flow", id="o3c"];
+    o4 [label=<<FONT POINT-SIZE="8" COLOR="#555555">PAGE · LOGIN REQUIRED</FONT><BR/>Professional Development<BR/><FONT POINT-SIZE="8" COLOR="#555555">/professional-development</FONT>>, shape="box", style="rounded,filled", fillcolor="#FFF3E0", color="#E65100", class="n-page_login", id="o4"];
+    o4a [label=<<FONT POINT-SIZE="8" COLOR="#555555">SCREEN FLOW</FONT><BR/>Request PD, Contacts (pd),<BR/>Sessions<BR/><FONT POINT-SIZE="8" COLOR="#555555">-&gt; PD journey</FONT>>, shape="box", style="rounded,filled", fillcolor="#D1C4E9", color="#4527A0", class="n-flow", id="o4a"];
+  o0 -> o1;
+  o1 -> o1a [label="on load"];
+  o1 -> o1b [label="tab content"];
+  o1b -> o1c;
+  o1a -> o1c;
+  o1 -> o2 [label="then"];
+  o2 -> o2a [label="Digital Logistics tab"];
+  o2 -> o2b [label="Contacts tab"];
+  o2 -> o3 [label="then"];
+  o3 -> o3a [label="Shipping addresses tab"];
+  o3 -> o3b [label="Contacts tab"];
+  o3 -> o3c [label="Orders tab"];
+  o3 -> o4 [label="then"];
+  o4 -> o4a;
+}

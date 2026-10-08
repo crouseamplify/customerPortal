@@ -1,0 +1,28 @@
+digraph G {
+  graph [fontname="Helvetica", rankdir=TB, bgcolor="white", pad=0.3, nodesep=0.35, ranksep=0.5, newrank=true, compound=true];
+  node [fontname="Helvetica", fontsize=10, margin="0.12,0.07"];
+  edge [fontname="Helvetica", fontsize=9, color="#607D8B", arrowsize=0.8];
+
+  start [label="Start", shape=circle, style=filled, fillcolor="#37474F", fontcolor="white", color="#37474F", width=0.5, fixedsize=true, id="Community_Material_Status_v2_start"];
+  Community_Material_Status_v2_Error_screen [label=<<FONT POINT-SIZE="8" COLOR="#555555">SCREEN</FONT><BR/>Error_screen>, shape="box", style="rounded,filled", fillcolor="#E3F2FD", color="#1565C0", class="n-screen", id="Community_Material_Status_v2_Error_screen", penwidth="2.6"];
+  Community_Material_Status_v2_Order_Search_Invalid [label=<<FONT POINT-SIZE="8" COLOR="#555555">SCREEN</FONT><BR/>Order Search Invalid>, shape="box", style="rounded,filled", fillcolor="#E3F2FD", color="#1565C0", class="n-screen", id="Community_Material_Status_v2_Order_Search_Invalid", penwidth="2.6"];
+  Community_Material_Status_v2_Screen0 [label=<<FONT POINT-SIZE="8" COLOR="#555555">SCREEN</FONT><BR/>Screen0>, shape="box", style="rounded,filled", fillcolor="#E3F2FD", color="#1565C0", class="n-screen", id="Community_Material_Status_v2_Screen0", penwidth="2.6"];
+  Community_Material_Status_v2_Check_For_PQ_Opportunity [label=<Check For PQ-<BR/>Opportunity>, shape="diamond", style="filled", fillcolor="#FFF8E1", color="#F9A825", class="n-decision", id="Community_Material_Status_v2_Check_For_PQ_Opportunity", penwidth="1.2"];
+  Community_Material_Status_v2_Flow_Error_Email_Notification_Community_Matl_Status_v2 [label=<<FONT POINT-SIZE="8" COLOR="#555555">EMAIL</FONT><BR/>Flow Error Email<BR/>Notification - Community<BR/>Matl_Status_v2<BR/><FONT POINT-SIZE="8" COLOR="#555555">emailSimple</FONT>>, shape="box", style="filled", fillcolor="#FCE4EC", color="#AD1457", class="n-email", id="Community_Material_Status_v2_Flow_Error_Email_Notification_Community_Matl_Status_v2", penwidth="1.2"];
+  Community_Material_Status_v2_Get_Integration_Data_Sync_Record [label=<Get Integration Data Sync<BR/>Record<BR/><FONT POINT-SIZE="8" COLOR="#555555">get Integration Data Sync</FONT>>, shape="cylinder", style="filled", fillcolor="#E0F2F1", color="#00796B", class="n-read", id="Community_Material_Status_v2_Get_Integration_Data_Sync_Record", penwidth="1.2"];
+  Community_Material_Status_v2_Get_Opportunity [label=<Get Opportunity<BR/><FONT POINT-SIZE="8" COLOR="#555555">get Opportunity</FONT>>, shape="cylinder", style="filled", fillcolor="#E0F2F1", color="#00796B", class="n-read", id="Community_Material_Status_v2_Get_Opportunity", penwidth="1.2"];
+  Community_Material_Status_v2_Create_Community_Portal_Log [label=<Create Community Portal<BR/>Log<BR/><FONT POINT-SIZE="8" COLOR="#555555">create Community Portal Log</FONT>>, shape="cylinder", style="filled", fillcolor="#C8E6C9", color="#1B5E20", class="n-write", id="Community_Material_Status_v2_Create_Community_Portal_Log", penwidth="1.2"];
+  Community_Material_Status_v2_Copy_1_of_Update_Community_Portal_Log [label=<Copy 1 of Update Community<BR/>Portal Log<BR/><FONT POINT-SIZE="8" COLOR="#555555">update Community Portal Log</FONT>>, shape="cylinder", style="filled", fillcolor="#C8E6C9", color="#1B5E20", class="n-write", id="Community_Material_Status_v2_Copy_1_of_Update_Community_Portal_Log", penwidth="1.2"];
+  Community_Material_Status_v2_Copy_2_of_Update_Community_Portal_Log [label=<Copy 2 of Update Community<BR/>Portal Log<BR/><FONT POINT-SIZE="8" COLOR="#555555">update Community Portal Log</FONT>>, shape="cylinder", style="filled", fillcolor="#C8E6C9", color="#1B5E20", class="n-write", id="Community_Material_Status_v2_Copy_2_of_Update_Community_Portal_Log", penwidth="1.2"];
+  Community_Material_Status_v2_Update_Community_Portal_Log [label=<Update Community Portal<BR/>Log<BR/><FONT POINT-SIZE="8" COLOR="#555555">update Community Portal Log</FONT>>, shape="cylinder", style="filled", fillcolor="#C8E6C9", color="#1B5E20", class="n-write", id="Community_Material_Status_v2_Update_Community_Portal_Log", penwidth="1.2"];
+  start -> Community_Material_Status_v2_Create_Community_Portal_Log;
+  Community_Material_Status_v2_Check_For_PQ_Opportunity -> Community_Material_Status_v2_Update_Community_Portal_Log [label="otherwise"];
+  Community_Material_Status_v2_Check_For_PQ_Opportunity -> Community_Material_Status_v2_Copy_1_of_Update_Community_Portal_Log [label="PQ Found"];
+  Community_Material_Status_v2_Flow_Error_Email_Notification_Community_Matl_Status_v2 -> Community_Material_Status_v2_Copy_2_of_Update_Community_Portal_Log [];
+  Community_Material_Status_v2_Get_Integration_Data_Sync_Record -> Community_Material_Status_v2_Check_For_PQ_Opportunity [];
+  Community_Material_Status_v2_Get_Opportunity -> Community_Material_Status_v2_Get_Integration_Data_Sync_Record [];
+  Community_Material_Status_v2_Create_Community_Portal_Log -> Community_Material_Status_v2_Get_Opportunity [];
+  Community_Material_Status_v2_Copy_1_of_Update_Community_Portal_Log -> Community_Material_Status_v2_Screen0 [];
+  Community_Material_Status_v2_Copy_2_of_Update_Community_Portal_Log -> Community_Material_Status_v2_Error_screen [];
+  Community_Material_Status_v2_Update_Community_Portal_Log -> Community_Material_Status_v2_Order_Search_Invalid [];
+}

@@ -1,0 +1,1965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:,">
+<title>Shipment Status Page — existing components (mockup)</title>
+<link rel="stylesheet" href="assets/site-styles/salesforce-lightning-design-system.min.css">
+<link rel="stylesheet" href="assets/site-styles/dxp-site-spacing-styling-hooks.min.css">
+<link rel="stylesheet" href="assets/site-styles/dxp-styling-hooks.min.css">
+<link rel="stylesheet" href="assets/site-styles/site-theme.css">
+<link rel="stylesheet" href="assets/site-styles/dxp-slds-extensions.min.css">
+<style>
+/* =====================================================================
+   Mockup of the EXISTING Shipment Status Page: flow "Community- Material Status v2"
+   with LWCs orderStatusFilterShipTo, orderStatusFilter, orderStatusResults (+ Tile, TileItem).
+   Styles below mirror those components' own CSS (greys, #ebf2fa shaded box, green badges, pill button).
+   ===================================================================== */
+[hidden] { display: none !important; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #fff; color: #3b3b3b; font-family: var(--dxp-g-root-font-family); }
+.mock-bar { background: #032d60; color: #fff; padding: .5rem 1.25rem; font-size: 13px; display: flex; flex-wrap: wrap; align-items: center; gap: .4rem 1rem; }
+.mock-bar select { font-size: 13px; padding: .1rem .3rem; color: #181818; background: #fff; border: 0; border-radius: 3px; }
+.mock-bar .note { opacity: .75; }
+.page { max-width: 1440px; margin: 0 auto; padding: 1rem 1.5rem 2rem; }
+@media (min-width: 1441px) { body { background: #f3f4f6; } .page { background: #fff; box-shadow: 0 0 0 1px var(--dxp-g-neutral-1); min-height: 100vh; } }
+
+/* flow screen: two columns, 4/12 and 8/12 */
+.cols { display: grid; grid-template-columns: 4fr 8fr; gap: 1rem; align-items: start; }
+@media (max-width: 899.98px) { .cols { grid-template-columns: 1fr; } }
+
+.medium  { color: var(--dxp-s-body-text-color, #3b3b3b); font-size: var(--dxp-s-body-font-size, 1rem); }
+.medium2 { color: var(--dxp-s-body-text-color, #3b3b3b); font-size: var(--dxp-s-body-font-size, 1rem); font-weight: bold; }
+.small   { font-size: .875rem; }
+.shadedbox { background-color: #ebf2fa; border-radius: 3px; margin: 15px; padding: 10px; }
+.title { font-weight: bold; font-size: 1.25rem; line-height: 25px; color: #3b3b3b; margin: 0; }
+
+/* orderStatusFilter */
+.card { background: #F6F6F6; }
+.card section { margin-top: 16px; }
+.card .slds-form-element { margin-bottom: 0; }
+.green_marker { background-color: #FFFFFF !important; border-color: #00866b !important; }
+.colorpop { --slds-c-badge-color-background: #00866b; --slds-c-badge-text-color: #FFFFFF; --slds-c-badge-radius-border: 5px; background: #00866b; color: #fff; border-radius: 5px; font-size: 1rem; padding: .1rem .55rem; }
+.card .search { margin-bottom: 1rem; }
+
+/* orderStatusResults / Tile */
+.results { background: #f6f6f6; border-radius: 3px; padding: 10px; color: #3b3b3b;
+  --slds-c-button-brand-color-background: #3278c8; --slds-c-button-brand-color-background-hover: #1e4878;
+  --slds-c-button-brand-text-color: #FFFFFF; --slds-c-button-brand-text-color-hover: #FFFFFF;
+  --slds-c-button-brand-color-border: #3278c8; --slds-c-button-brand-color-border-hover: #1e4878; --slds-c-button-radius-border: 15px; }
+.results .title { margin: 15px; }
+.results p { font-size: small; color: #3b3b3b; margin: 15px 0 0 5px; }
+.delivery { background: #fff; border-radius: 3px; margin: 20px 10px; padding: 2px 0 12px; }
+.delivery .head { padding: .75rem 1rem 0; }
+.delivery .tile { padding: .25rem 1rem; }
+.delivery .tile p { font-size: small; margin: 0 0 .25rem; }
+.delivery .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+@media (max-width: 599.98px) { .delivery .row3 { grid-template-columns: 1fr; } }
+.badge-ship { --slds-c-badge-color-background: #e6f3f0; --slds-c-badge-text-color: #00866B; background: #e6f3f0; color: #00866B; border-radius: 3px; display: inline-block; padding: .1rem .5rem; font-size: .75rem; }
+.lines { margin-top: 1rem; }
+.line { display: grid; grid-template-columns: 2fr 4fr 2fr; gap: 1rem; padding: .15rem 0; font-size: .875rem; }
+.line.h { font-weight: bold; padding-bottom: .25rem; }
+.empty { padding: 1rem; font-size: .9375rem; }
+.footer-note { margin-top: 1.5rem; color: #3b3b3b; font-size: .875rem; }
+.footer-note p { margin: .5rem 0; }
+.screen-msg { padding: 2rem 0; font-size: 1rem; }
+a.slds-button { text-decoration: none; }
+
+.vseg { display: inline-flex; border: 1px solid #5a7fb0; border-radius: 4px; overflow: hidden; }
+.vseg input { position: absolute; opacity: 0; pointer-events: none; }
+.vseg label { padding: .2rem .7rem; cursor: pointer; }
+.vseg input:checked + label { background: #fff; color: #032d60; font-weight: 600; }
+
+/* =====================================================================
+   NEW Shipment Status Page — first pass
+   Status colours match the Manage Orders list: Preparing = orange, Shipped = purple, Delivered = green
+   ===================================================================== */
+.nv { --prep: #e65100; --prepbg: #fff3e0; --ship: #5c35cc; --shipbg: #efe8fc; --deliv: #00866b; --delivbg: #e6f3f0; }
+.nv h1 { margin: 0; }
+.nv-head { display: flex; flex-wrap: wrap; align-items: flex-end; gap: .75rem 2rem; padding-bottom: 1rem; border-bottom: 1px solid #e0e0e0; margin-bottom: 1rem; }
+.nv-head .t { flex: 1 1 100%; }
+.nv-sum { display: flex; flex-direction: column; gap: .125rem; }
+.nv-sum .l { font-size: .6875rem; text-transform: uppercase; letter-spacing: .05em; color: #706e6b; font-weight: 600; }
+.nv-sum .v { font-size: .875rem; font-weight: 500; }
+.nv-sum.right { margin-left: auto; text-align: right; }
+.nv-notes { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem .75rem; align-items: start; }
+.nv-note { background: #eef4ff; border: 1px solid #c9dcff; border-radius: 6px; padding: .5rem 1rem; font-size: .875rem; }
+.nv-note summary { cursor: pointer; display: flex; align-items: center; gap: .5rem; list-style: none; }
+.nv-note summary::-webkit-details-marker { display: none; }
+.nv-note summary .hint { margin-left: auto; color: var(--dxp-g-brand); font-size: .75rem; }
+.nv-note[open] summary .hint { visibility: hidden; }
+.nv-note .body { padding: .5rem 0 .25rem 1.5rem; }
+.nv-note .slds-icon { fill: var(--dxp-g-brand); flex: none; }
+.nv-note p { margin: 0 0 .25rem; }
+.nv-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; margin: 1rem 0 .75rem; }
+.nv-tile { text-align: left; background: #fff; border: 1px solid var(--dxp-g-neutral-1); border-top: 4px solid var(--c); border-radius: 6px; padding: .75rem 1rem; cursor: pointer; font: inherit; color: inherit; }
+.nv-tile:hover { background: #fafaf9; } .nv-tile.on { box-shadow: 0 0 0 2px var(--c); }
+.nv-tile .n { font-size: 1.75rem; font-weight: 600; line-height: 1.1; color: var(--c); }
+.nv-tile .k { font-size: .75rem; text-transform: uppercase; letter-spacing: .05em; font-weight: 700; color: #3e3e3c; }
+.nv-tile .u { font-size: .8125rem; color: #706e6b; }
+.nv-bar { height: 10px; border-radius: 5px; overflow: hidden; display: flex; background: var(--dxp-g-neutral-1); margin-bottom: .25rem; }
+.nv-bar i { display: block; height: 100%; }
+.nv-legend { font-size: .75rem; color: #706e6b; display: flex; flex-wrap: wrap; gap: .25rem 1rem; margin-bottom: 1rem; }
+.nv-legend b { color: #3b3b3b; }
+.nv-dot { display: inline-block; width: .625rem; height: .625rem; border-radius: 50%; background: var(--c); margin-right: .25rem; }
+.nv-toolbar { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; margin-bottom: .75rem; }
+.nv-toolbar .search { width: 430px; max-width: 100%; } .nv-toolbar .search .slds-form-element { margin-bottom: 0; }
+.nv-chips { display: flex; flex-wrap: wrap; gap: .375rem; }
+.nv-chip { border: 1px solid var(--dxp-g-neutral-2); background: #fff; border-radius: 999px; padding: .25rem .75rem; font: inherit; font-size: .8125rem; cursor: pointer; color: #3b3b3b; }
+.nv-chip.on { background: #032d60; border-color: #032d60; color: #fff; }
+.nv-chip b { margin-left: .25rem; font-weight: 700; }
+.nv-count { margin-left: auto; font-size: .75rem; color: #706e6b; }
+.nv-split { display: flex; border: 1px solid var(--dxp-g-neutral-1); border-radius: 6px; overflow: hidden; background: #fff; min-height: 480px; }
+.nv-rail { width: 310px; flex: none; background: var(--dxp-g-neutral); border-right: 1px solid var(--dxp-g-neutral-1); display: flex; flex-direction: column; max-height: 720px; }
+.nv-rail .rh { padding: .75rem 1rem .5rem; font-size: .6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #706e6b; }
+.nv-rail .find { padding: 0 1rem .75rem; } .nv-rail .find .slds-form-element { margin-bottom: 0; }
+.nv-rail .list { overflow-y: auto; flex: 1; }
+.nv-item { display: block; width: 100%; text-align: left; background: transparent; border: 0; border-left: 4px solid transparent; border-bottom: 1px solid var(--dxp-g-neutral-1); padding: .65rem 1rem; cursor: pointer; font: inherit; color: inherit; }
+.nv-item:hover { background: rgba(255,255,255,.6); } .nv-item.on { background: #fff; border-left-color: var(--dxp-g-brand); }
+.nv-item .nm { font-size: .875rem; font-weight: 500; display: block; }
+.nv-item .pills { display: flex; gap: .5rem; margin-top: .25rem; font-size: .75rem; color: #444; flex-wrap: wrap; }
+.nv-main { flex: 1; min-width: 0; padding: 1rem 1.25rem; }
+.nv-loc { display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; align-items: flex-start; background: var(--dxp-g-neutral); border: 1px solid var(--dxp-g-neutral-1); border-radius: 6px; padding: .75rem 1rem; margin-bottom: 1rem; }
+.nv-loc h2 { margin: 0; font-size: 1.125rem; font-weight: 600; width: 100%; }
+.nv-loc .a { font-size: .8125rem; color: #444; line-height: 1.5; } .nv-loc .a b { color: #706e6b; font-weight: 600; font-size: .6875rem; text-transform: uppercase; letter-spacing: .05em; display: block; }
+.nv-badge { display: inline-block; padding: .125rem .6rem; border-radius: 999px; font-size: .6875rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; background: var(--bg); color: var(--c); white-space: nowrap; }
+.nv-card { border: 1px solid var(--dxp-g-neutral-1); border-left: 4px solid var(--c); border-radius: 6px; padding: .875rem 1rem; margin-bottom: .875rem; background: #fff; }
+.nv-card header { display: flex; align-items: flex-start; gap: .75rem; }
+.nv-card .kick { font-size: .6875rem; text-transform: uppercase; letter-spacing: .05em; color: #706e6b; font-weight: 700; }
+.nv-card h3 { margin: 0; font-size: 1rem; font-weight: 600; }
+.nv-card h3 code { font: inherit; font-family: ui-monospace, Menlo, monospace; font-size: .9375rem; }
+.nv-card .hd { flex: 1; min-width: 0; }
+.nv-meta { display: flex; flex-wrap: wrap; gap: .25rem 1.5rem; font-size: .8125rem; color: #444; margin: .5rem 0; }
+.nv-meta .muted { color: #706e6b; }
+.nv-steps { display: flex; margin: .75rem 0 .875rem; }
+.nv-steps li { list-style: none; flex: 1; position: relative; text-align: center; font-size: .6875rem; color: #8a8886; padding-top: 1.25rem; }
+.nv-steps li::before { content: ''; position: absolute; top: .3125rem; left: 50%; width: .75rem; height: .75rem; margin-left: -.375rem; border-radius: 50%; background: #fff; border: 2px solid #c9c7c5; z-index: 1; }
+.nv-steps li::after { content: ''; position: absolute; top: .6rem; left: -50%; width: 100%; height: 2px; background: #c9c7c5; }
+.nv-steps li:first-child::after { display: none; }
+.nv-steps li.done { color: #3b3b3b; } .nv-steps li.done::before { background: var(--c); border-color: var(--c); } .nv-steps li.done::after { background: var(--c); }
+.nv-steps li.cur { font-weight: 700; color: var(--c); }
+.nv-actions { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-bottom: .5rem; }
+.nv-copy { background: none; border: 0; cursor: pointer; color: var(--dxp-g-brand); padding: .125rem; vertical-align: middle; }
+.nv-lines { width: 100%; border-collapse: collapse; font-size: .8125rem; }
+.nv-lines th { text-align: left; font-size: .6875rem; text-transform: uppercase; letter-spacing: .04em; color: #706e6b; padding: .35rem .5rem; border-bottom: 2px solid var(--dxp-g-neutral-1); }
+.nv-lines td { padding: .35rem .5rem; border-bottom: 1px solid #f3f2f2; vertical-align: top; }
+.nv-lines .q { text-align: right; white-space: nowrap; } .nv-lines tfoot td { font-weight: 600; border-bottom: 0; }
+.nv-more { background: none; border: 0; color: var(--dxp-g-brand); cursor: pointer; font: inherit; font-size: .8125rem; padding: .5rem; }
+.nv-overview { width: 100%; border-collapse: collapse; font-size: .875rem; }
+.nv-overview th { text-align: left; font-size: .6875rem; text-transform: uppercase; letter-spacing: .04em; color: #706e6b; padding: .5rem .75rem; border-bottom: 2px solid var(--dxp-g-neutral-1); }
+.nv-overview td { padding: .55rem .75rem; border-bottom: 1px solid #f3f2f2; }
+.nv-overview tr.row { cursor: pointer; } .nv-overview tr.row:hover td { background: #fafaf9; }
+.nv-overview .c { text-align: center; } .nv-overview .zero { color: #c9c7c5; }
+.nv-pill { display: inline-block; min-width: 1.75rem; padding: .05rem .5rem; border-radius: 999px; background: var(--bg); color: var(--c); font-weight: 700; font-size: .8125rem; }
+.nv-empty { text-align: center; padding: 3rem 1rem; color: #444; } .nv-empty p { margin: .25rem 0; }
+.nv-mobile { display: none; margin-bottom: .75rem; }
+.nv-toast { position: fixed; bottom: 1.25rem; left: 50%; transform: translateX(-50%); background: #032d60; color: #fff; padding: .5rem 1rem; border-radius: 4px; font-size: .8125rem; z-index: 50; }
+@media (max-width: 899.98px) {
+    .nv-rail { display: none; } .nv-mobile { display: block; } .nv-split { display: block; min-height: 0; }
+    .nv-notes { grid-template-columns: 1fr; }
+    .nv-main { padding: .75rem; } .nv-stats { grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+    .nv-tile { padding: .5rem .625rem; } .nv-tile .n { font-size: 1.375rem; } .nv-tile .u { display: none; } .nv-tile .k { font-size: .6875rem; } .nv-sum.right { margin-left: 0; text-align: left; }
+    .nv-toolbar .search { width: 100%; } .nv-count { margin-left: 0; width: 100%; }
+    .nv-card header { flex-wrap: wrap; } .nv-lines th:nth-child(1), .nv-lines td:nth-child(1) { display: none; }
+}
+
+</style>
+</head>
+<body>
+<svg aria-hidden="true" style="display:none" xmlns="http://www.w3.org/2000/svg">
+<symbol viewBox="0 0 520 520"  id="u-new_window" xmlns="http://www.w3.org/2000/svg"><path d="M487 20H296c-8 0-16 5-16 13v30c0 8 7 17 16 17h79c9 0 14 10 7 16L212 266c-6 6-6 15 0 21l21 21c6 6 15 6 21 0l170-170c6-6 16-2 16 7v79c0 8 8 17 16 17h29c8 0 15-9 15-17V34c0-9-5-14-13-14M363 255l-34 35q-9 9-9 21v114c0 8-7 15-15 15H95c-8 0-15-7-15-15V215c0-8 7-15 15-15h115c8 0 16-3 21-9l34-34c6-6 2-17-7-17H60a40 40 0 00-40 40v280a40 40 0 0040 40h280a40 40 0 0040-40V262c0-9-11-13-17-7"/></symbol>
+<symbol viewBox="0 0 520 520"  id="u-search" xmlns="http://www.w3.org/2000/svg"><path d="M496 453L362 320a189 189 0 10-340-92 190 190 0 00298 135l133 133a14 14 0 0021 0l21-21a17 17 0 001-22M210 338a129 129 0 11130-130 129 129 0 01-130 130"/></symbol>
+<symbol viewBox="0 0 520 520"  id="u-chevrondown" xmlns="http://www.w3.org/2000/svg"><path d="M476 178L271 385c-6 6-16 6-22 0L44 178c-6-6-6-16 0-22l22-22c6-6 16-6 22 0l161 163c6 6 16 6 22 0l161-162c6-6 16-6 22 0l22 22c5 6 5 15 0 21"/></symbol>
+<symbol  viewBox="0 0 52 52" id="u-copy" xmlns="http://www.w3.org/2000/svg"><path d="M44 2H18a4 4 0 00-4 4v2h24a4 4 0 014 4v28h2a4 4 0 004-4V6a4 4 0 00-4-4"/><path d="M38 16a4 4 0 00-4-4H8a4 4 0 00-4 4v30a4 4 0 004 4h26a4 4 0 004-4zm-18 7c0 .6-.4 1-1 1h-8c-.6 0-1-.4-1-1v-2c0-.6.4-1 1-1h8c.6 0 1 .4 1 1zm8 16c0 .6-.4 1-1 1H11c-.6 0-1-.4-1-1v-2c0-.6.4-1 1-1h16c.6 0 1 .4 1 1zm4-8c0 .6-.4 1-1 1H11c-.6 0-1-.4-1-1v-2c0-.6.4-1 1-1h20c.6 0 1 .4 1 1z"/></symbol>
+<symbol viewBox="0 0 520 520"  id="u-info" xmlns="http://www.w3.org/2000/svg"><path d="M260 20a240 240 0 100 480 240 240 0 100-480m0 121c17 0 30 13 30 30s-13 30-30 30-30-13-30-30 13-30 30-30m50 210c0 5-4 9-10 9h-80c-5 0-10-3-10-9v-20c0-5 4-11 10-11 5 0 10-3 10-9v-40c0-5-4-11-10-11-5 0-10-3-10-9v-20c0-5 4-11 10-11h60c5 0 10 5 10 11v80c0 5 4 9 10 9 5 0 10 5 10 11z"/></symbol>
+<symbol viewBox="0 0 520 520"  id="u-close" xmlns="http://www.w3.org/2000/svg"><path d="M310 254l130-131c6-6 6-15 0-21l-20-21c-6-6-15-6-21 0L268 212a10 10 0 01-14 0L123 80c-6-6-15-6-21 0l-21 21c-6 6-6 15 0 21l131 131c4 4 4 10 0 14L80 399c-6 6-6 15 0 21l21 21c6 6 15 6 21 0l131-131a10 10 0 0114 0l131 131c6 6 15 6 21 0l21-21c6-6 6-15 0-21L310 268a10 10 0 010-14"/></symbol>
+<symbol viewBox="0 0 520 520"  id="u-chevronright" xmlns="http://www.w3.org/2000/svg"><path d="M179 44l207 205c6 6 6 16 0 22L179 476c-6 6-16 6-22 0l-22-22c-6-6-6-16 0-22l163-161c6-6 6-16 0-22L136 88c-6-6-6-16 0-22l22-22c6-5 15-5 21 0"/></symbol>
+<symbol viewBox="0 0 520 520"  id="u-location" xmlns="http://www.w3.org/2000/svg"><path d="M488 95L344 23c-7-3-15-3-21 0L190 90 56 23c-8-4-18-4-25 1-7 4-11 12-11 20v360c0 9 5 17 13 21l144 72c7 3 15 3 21 0l134-67 133 67c3 2 7 3 11 3s9-1 13-4c7-4 11-12 11-20V116c0-9-4-17-12-21m-38 46v190c0 11-10 19-20 15-37-14-7-76-34-110-25-31-57 1-88-48-29-47 10-81 46-99 5-2 10-2 14 0l74 37c6 3 8 9 8 15M249 419c-6 3-13 2-18-2-10-9-18-23-18-37 0-24-40-16-40-64 0-39-46-49-85-45-10 1-17-6-17-16V109c0-12 12-20 22-14l86 43 2 1 3 2c36 21 29 38 14 64-17 29-24 0-48-8s-48 8-40 24 32 0 48 16 16 40 64 24 56-8 72 8a50 50 0 010 72c-14 14-20 44-26 64-1 4-4 8-8 10z"/></symbol>
+<symbol viewBox="0 0 520 520"  id="u-success" xmlns="http://www.w3.org/2000/svg"><path d="M260 20a240 240 0 100 480 240 240 0 100-480m134 180L241 355c-6 6-16 6-22 0l-84-85c-6-6-6-16 0-22l22-22c6-6 16-6 22 0l44 45a10 10 0 0015 0l112-116c6-6 16-6 22 0l22 22c7 6 7 16 0 23"/></symbol>
+<symbol viewBox="0 0 520 520"  id="u-clock" xmlns="http://www.w3.org/2000/svg"><path d="M260 20C128 20 20 128 20 260s108 240 240 240 240-108 240-240S392 20 260 20m0 420c-99 0-180-81-180-180S161 80 260 80s180 81 180 180-81 180-180 180m34-178c-3-3-4-7-4-11v-96c0-8-7-15-15-15h-30c-8 0-15 7-15 15v121c0 4 2 8 4 11l74 74c6 6 15 6 21 0l21-21c6-6 6-15 0-21z"/></symbol>
+<symbol viewBox="0 0 520 520"  id="u-package" xmlns="http://www.w3.org/2000/svg"><path d="M444 240h-79l-33 40h108v60H80v-60h107l-33-40H76c-20 0-36 16-36 36v194a30 30 0 0030 30h380a30 30 0 0030-30V276c0-20-16-36-36-36M230 35v125h-69c-10 0-15 9-9 14l100 123c4 3 10 3 14 0l100-123c6-6 1-14-9-14h-67V35c0-8-7-15-15-15h-30c-8 0-15 7-15 15"/></symbol>
+</svg>
+
+<div class="mock-bar">
+    <strong>Mockup · Shipment Status Page</strong>
+    <span class="vseg" role="radiogroup" aria-label="Version"><input type="radio" name="ver" id="v-existing"><label for="v-existing">Existing</label><input type="radio" name="ver" id="v-new" checked><label for="v-new">New · first pass</label></span>
+    <span class="note">Existing = flow “Community- Material Status v2” (orderStatusFilterShipTo / orderStatusFilter / orderStatusResults) · same anonymized data in both</span>
+    <label>Flow outcome <select id="screenSel"><option value="ok">Order found</option><option value="invalid">Order not found</option><option value="error">Error</option></select></label>
+</div>
+
+<main class="page" id="root"></main>
+
+<script>
+const DATA = {
+ "pq": "PQ 260301-100020",
+ "district": "Riverbend Unified School District",
+ "po": "DEMO-0456",
+ "updated": "10/5/2026, 6:02 AM",
+ "locations": [
+  {
+   "name": "Alder Creek Elementary",
+   "contact": "Jordan Ellis",
+   "street": "1200 Maple Ave",
+   "city": "Springfield",
+   "state": "IL",
+   "zip": "62701",
+   "country": "United States",
+   "shipments": [],
+   "orders": [
+    {
+     "msg": "ESTIMATED DELIVERY: 9/24/2026 - 10/9/2026",
+     "lines": [
+      {
+       "isbn": "978-1-63948-103-3",
+       "name": "Amplify CKLA G1 Research Unit Authentic Trade Book Collection",
+       "qty": 4,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89404-071-4",
+       "name": "Amplify CKLA 3rd Ed G1 Skills Teacher Guide Set",
+       "qty": 4,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89404-500-9",
+       "name": "Amplify CKLA 3rd Ed G1 Skills Ancillary Set",
+       "qty": 4,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89404-501-6",
+       "name": "Amplify CKLA 3rd Ed G1 Image Card Set",
+       "qty": 4,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-88699-730-9",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Teacher Guide U9 Early Americas",
+       "qty": 4,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-102-8",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U1 Reader",
+       "qty": 96,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-103-5",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U2 Reader",
+       "qty": 96,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-104-2",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U3 Reader",
+       "qty": 96,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-105-9",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U4 Reader",
+       "qty": 96,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-106-6",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U5 Reader",
+       "qty": 96,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-107-3",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U6 Reader",
+       "qty": 96,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-110-3",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U7 Reader",
+       "qty": 96,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-161-5",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Image Cards U8 Fairy Tales",
+       "qty": 4,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-165-3",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Image Cards U9 Early Americas",
+       "qty": 4,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-194-3",
+       "name": "Amplify CKLA 3rd Ed G1 Code Poster Set",
+       "qty": 4,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-056-4",
+       "name": "Amplify CKLA 3rd Ed G1 Skills Activity Book Vol 1",
+       "qty": 100,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-057-1",
+       "name": "Amplify CKLA 3rd Ed G1 Skills Activity Book Vol 2",
+       "qty": 100,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-058-8",
+       "name": "Amplify CKLA 3rd Ed G1 Skills Activity Book Vol 3",
+       "qty": 100,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-085-4",
+       "name": "Amplify CKLA 3rd Ed G1 Knowledge D1-7, 10  Activity Book",
+       "qty": 100,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-087-8",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Activity Book U8 Fairy Tales",
+       "qty": 100,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-094-6",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Activity Book U9 Early Americas",
+       "qty": 100,
+       "shipped": 0
+      }
+     ]
+    },
+    {
+     "msg": "Date Pending. Check back shortly.",
+     "lines": [
+      {
+       "isbn": "979-8-89404-065-3",
+       "name": "Amplify CKLA 3rd Ed G1 Knowledge Teacher Guide Set",
+       "qty": 4,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-88699-727-9",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Teacher Guide U8 Fairy Tales",
+       "qty": 4,
+       "shipped": 0
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Birch Hollow Elementary",
+   "contact": "Casey Morgan",
+   "street": "455 Oak St",
+   "city": "Riverton",
+   "state": "IL",
+   "zip": "62561",
+   "country": "United States",
+   "shipments": [],
+   "orders": [
+    {
+     "msg": "ESTIMATED DELIVERY: 9/24/2026 - 10/9/2026",
+     "lines": [
+      {
+       "isbn": "978-1-63948-103-3",
+       "name": "Amplify CKLA G1 Research Unit Authentic Trade Book Collection",
+       "qty": 5,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89404-071-4",
+       "name": "Amplify CKLA 3rd Ed G1 Skills Teacher Guide Set",
+       "qty": 5,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89404-500-9",
+       "name": "Amplify CKLA 3rd Ed G1 Skills Ancillary Set",
+       "qty": 5,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89404-501-6",
+       "name": "Amplify CKLA 3rd Ed G1 Image Card Set",
+       "qty": 5,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-88699-730-9",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Teacher Guide U9 Early Americas",
+       "qty": 5,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-102-8",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U1 Reader",
+       "qty": 120,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-103-5",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U2 Reader",
+       "qty": 120,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-104-2",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U3 Reader",
+       "qty": 120,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-105-9",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U4 Reader",
+       "qty": 120,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-106-6",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U5 Reader",
+       "qty": 120,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-107-3",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U6 Reader",
+       "qty": 120,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-110-3",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U7 Reader",
+       "qty": 120,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-161-5",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Image Cards U8 Fairy Tales",
+       "qty": 5,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-165-3",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Image Cards U9 Early Americas",
+       "qty": 5,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-194-3",
+       "name": "Amplify CKLA 3rd Ed G1 Code Poster Set",
+       "qty": 5,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-056-4",
+       "name": "Amplify CKLA 3rd Ed G1 Skills Activity Book Vol 1",
+       "qty": 70,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-057-1",
+       "name": "Amplify CKLA 3rd Ed G1 Skills Activity Book Vol 2",
+       "qty": 70,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-058-8",
+       "name": "Amplify CKLA 3rd Ed G1 Skills Activity Book Vol 3",
+       "qty": 70,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-085-4",
+       "name": "Amplify CKLA 3rd Ed G1 Knowledge D1-7, 10  Activity Book",
+       "qty": 70,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-087-8",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Activity Book U8 Fairy Tales",
+       "qty": 70,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-094-6",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Activity Book U9 Early Americas",
+       "qty": 70,
+       "shipped": 0
+      }
+     ]
+    },
+    {
+     "msg": "Date Pending. Check back shortly.",
+     "lines": [
+      {
+       "isbn": "979-8-89404-065-3",
+       "name": "Amplify CKLA 3rd Ed G1 Knowledge Teacher Guide Set",
+       "qty": 5,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-88699-727-9",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Teacher Guide U8 Fairy Tales",
+       "qty": 5,
+       "shipped": 0
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Cedar Ridge Middle School",
+   "contact": "Riley Brooks",
+   "street": "78 Cedar Ln",
+   "city": "Maple Falls",
+   "state": "IL",
+   "zip": "62711",
+   "country": "United States",
+   "shipments": [],
+   "orders": [
+    {
+     "msg": "ESTIMATED DELIVERY: 9/24/2026 - 10/9/2026",
+     "lines": [
+      {
+       "isbn": "978-1-63948-103-3",
+       "name": "Amplify CKLA G1 Research Unit Authentic Trade Book Collection",
+       "qty": 4,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89404-071-4",
+       "name": "Amplify CKLA 3rd Ed G1 Skills Teacher Guide Set",
+       "qty": 4,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89404-500-9",
+       "name": "Amplify CKLA 3rd Ed G1 Skills Ancillary Set",
+       "qty": 4,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89404-501-6",
+       "name": "Amplify CKLA 3rd Ed G1 Image Card Set",
+       "qty": 4,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-88699-730-9",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Teacher Guide U9 Early Americas",
+       "qty": 4,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-102-8",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U1 Reader",
+       "qty": 96,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-103-5",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U2 Reader",
+       "qty": 96,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-104-2",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U3 Reader",
+       "qty": 96,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-105-9",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U4 Reader",
+       "qty": 96,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-106-6",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U5 Reader",
+       "qty": 96,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-107-3",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U6 Reader",
+       "qty": 96,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-110-3",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U7 Reader",
+       "qty": 96,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-161-5",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Image Cards U8 Fairy Tales",
+       "qty": 4,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-165-3",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Image Cards U9 Early Americas",
+       "qty": 4,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-194-3",
+       "name": "Amplify CKLA 3rd Ed G1 Code Poster Set",
+       "qty": 4,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-056-4",
+       "name": "Amplify CKLA 3rd Ed G1 Skills Activity Book Vol 1",
+       "qty": 100,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-057-1",
+       "name": "Amplify CKLA 3rd Ed G1 Skills Activity Book Vol 2",
+       "qty": 100,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-058-8",
+       "name": "Amplify CKLA 3rd Ed G1 Skills Activity Book Vol 3",
+       "qty": 100,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-085-4",
+       "name": "Amplify CKLA 3rd Ed G1 Knowledge D1-7, 10  Activity Book",
+       "qty": 100,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-087-8",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Activity Book U8 Fairy Tales",
+       "qty": 100,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-094-6",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Activity Book U9 Early Americas",
+       "qty": 100,
+       "shipped": 0
+      }
+     ]
+    },
+    {
+     "msg": "Date Pending. Check back shortly.",
+     "lines": [
+      {
+       "isbn": "979-8-89404-065-3",
+       "name": "Amplify CKLA 3rd Ed G1 Knowledge Teacher Guide Set",
+       "qty": 4,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-88699-727-9",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Teacher Guide U8 Fairy Tales",
+       "qty": 4,
+       "shipped": 0
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Dogwood Elementary",
+   "contact": "Taylor Quinn",
+   "street": "2301 Birch Rd",
+   "city": "Oak Grove",
+   "state": "IL",
+   "zip": "62522",
+   "country": "United States",
+   "shipments": [],
+   "orders": [
+    {
+     "msg": "ESTIMATED DELIVERY: 9/24/2026 - 10/9/2026",
+     "lines": [
+      {
+       "isbn": "978-1-63948-103-3",
+       "name": "Amplify CKLA G1 Research Unit Authentic Trade Book Collection",
+       "qty": 4,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89404-071-4",
+       "name": "Amplify CKLA 3rd Ed G1 Skills Teacher Guide Set",
+       "qty": 4,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89404-500-9",
+       "name": "Amplify CKLA 3rd Ed G1 Skills Ancillary Set",
+       "qty": 4,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89404-501-6",
+       "name": "Amplify CKLA 3rd Ed G1 Image Card Set",
+       "qty": 4,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-88699-730-9",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Teacher Guide U9 Early Americas",
+       "qty": 4,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-102-8",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U1 Reader",
+       "qty": 96,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-103-5",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U2 Reader",
+       "qty": 96,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-104-2",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U3 Reader",
+       "qty": 96,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-105-9",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U4 Reader",
+       "qty": 96,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-106-6",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U5 Reader",
+       "qty": 96,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-107-3",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U6 Reader",
+       "qty": 96,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-110-3",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U7 Reader",
+       "qty": 96,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-161-5",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Image Cards U8 Fairy Tales",
+       "qty": 4,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-165-3",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Image Cards U9 Early Americas",
+       "qty": 4,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-194-3",
+       "name": "Amplify CKLA 3rd Ed G1 Code Poster Set",
+       "qty": 4,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-056-4",
+       "name": "Amplify CKLA 3rd Ed G1 Skills Activity Book Vol 1",
+       "qty": 90,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-057-1",
+       "name": "Amplify CKLA 3rd Ed G1 Skills Activity Book Vol 2",
+       "qty": 90,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-058-8",
+       "name": "Amplify CKLA 3rd Ed G1 Skills Activity Book Vol 3",
+       "qty": 90,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-085-4",
+       "name": "Amplify CKLA 3rd Ed G1 Knowledge D1-7, 10  Activity Book",
+       "qty": 90,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-087-8",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Activity Book U8 Fairy Tales",
+       "qty": 90,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89180-094-6",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Activity Book U9 Early Americas",
+       "qty": 90,
+       "shipped": 0
+      }
+     ]
+    },
+    {
+     "msg": "Date Pending. Check back shortly.",
+     "lines": [
+      {
+       "isbn": "979-8-89404-065-3",
+       "name": "Amplify CKLA 3rd Ed G1 Knowledge Teacher Guide Set",
+       "qty": 4,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-88699-727-9",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Teacher Guide U8 Fairy Tales",
+       "qty": 4,
+       "shipped": 0
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Elm Park Elementary",
+   "contact": "Avery Hayes",
+   "street": "915 Elm Dr",
+   "city": "Springfield",
+   "state": "IL",
+   "zip": "62701",
+   "country": "United States",
+   "shipments": [],
+   "orders": [
+    {
+     "msg": "Date Pending. Check back shortly.",
+     "lines": [
+      {
+       "isbn": "979-8-89404-066-0",
+       "name": "Amplify CKLA 3rd Ed G2 Knowledge Teacher Guide Set",
+       "qty": 3,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89404-513-9",
+       "name": "Amplify CKLA 3rd Ed G2 Skills Ancillary Set",
+       "qty": 3,
+       "shipped": 0
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Fairview Middle School",
+   "contact": "Morgan Reed",
+   "street": "60 Granite Way",
+   "city": "Riverton",
+   "state": "IL",
+   "zip": "62561",
+   "country": "United States",
+   "shipments": [],
+   "orders": [
+    {
+     "msg": "Date Pending. Check back shortly.",
+     "lines": [
+      {
+       "isbn": "979-8-89404-066-0",
+       "name": "Amplify CKLA 3rd Ed G2 Knowledge Teacher Guide Set",
+       "qty": 5,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89404-513-9",
+       "name": "Amplify CKLA 3rd Ed G2 Skills Ancillary Set",
+       "qty": 5,
+       "shipped": 0
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Granite Hill Elementary",
+   "contact": "Jamie Cole",
+   "street": "3340 Harbor Blvd",
+   "city": "Maple Falls",
+   "state": "IL",
+   "zip": "62711",
+   "country": "United States",
+   "shipments": [],
+   "orders": [
+    {
+     "msg": "Date Pending. Check back shortly.",
+     "lines": [
+      {
+       "isbn": "979-8-89404-066-0",
+       "name": "Amplify CKLA 3rd Ed G2 Knowledge Teacher Guide Set",
+       "qty": 5,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89404-513-9",
+       "name": "Amplify CKLA 3rd Ed G2 Skills Ancillary Set",
+       "qty": 5,
+       "shipped": 0
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Harbor View Elementary",
+   "contact": "Drew Parker",
+   "street": "512 Ironwood Ct",
+   "city": "Oak Grove",
+   "state": "IL",
+   "zip": "62522",
+   "country": "United States",
+   "shipments": [],
+   "orders": [
+    {
+     "msg": "Date Pending. Check back shortly.",
+     "lines": [
+      {
+       "isbn": "979-8-89404-066-0",
+       "name": "Amplify CKLA 3rd Ed G2 Knowledge Teacher Guide Set",
+       "qty": 3,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-89404-513-9",
+       "name": "Amplify CKLA 3rd Ed G2 Skills Ancillary Set",
+       "qty": 3,
+       "shipped": 0
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Ironwood Middle School",
+   "contact": "Skyler Boyd",
+   "street": "87 Juniper Pl",
+   "city": "Springfield",
+   "state": "IL",
+   "zip": "62701",
+   "country": "United States",
+   "shipments": [
+    {
+     "tracking": "1Z999AA1000000003",
+     "carrier": "UPS GROUND",
+     "status": "Delivered",
+     "shipDate": "2/24/2026",
+     "lines": [
+      {
+       "isbn": "979-8-89404-500-9",
+       "name": "Amplify CKLA 3rd Ed G1 Skills Ancillary Set",
+       "qty": 1,
+       "shipped": 1
+      },
+      {
+       "isbn": "979-8-89404-501-6",
+       "name": "Amplify CKLA 3rd Ed G1 Image Card Set",
+       "qty": 1,
+       "shipped": 1
+      },
+      {
+       "isbn": "979-8-88699-730-9",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Teacher Guide U9 Early Americas",
+       "qty": 1,
+       "shipped": 1
+      },
+      {
+       "isbn": "979-8-89180-102-8",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U1 Reader",
+       "qty": 24,
+       "shipped": 24
+      },
+      {
+       "isbn": "979-8-89180-103-5",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U2 Reader",
+       "qty": 24,
+       "shipped": 24
+      },
+      {
+       "isbn": "978-1-63948-103-3",
+       "name": "Amplify CKLA G1 Research Unit Authentic Trade Book Collection",
+       "qty": 1,
+       "shipped": 1
+      },
+      {
+       "isbn": "979-8-89404-071-4",
+       "name": "Amplify CKLA 3rd Ed G1 Skills Teacher Guide Set",
+       "qty": 1,
+       "shipped": 1
+      },
+      {
+       "isbn": "979-8-89180-104-2",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U3 Reader",
+       "qty": 24,
+       "shipped": 24
+      },
+      {
+       "isbn": "979-8-89180-105-9",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U4 Reader",
+       "qty": 24,
+       "shipped": 24
+      },
+      {
+       "isbn": "979-8-89180-106-6",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U5 Reader",
+       "qty": 24,
+       "shipped": 24
+      },
+      {
+       "isbn": "979-8-89180-107-3",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U6 Reader",
+       "qty": 24,
+       "shipped": 24
+      },
+      {
+       "isbn": "979-8-89180-110-3",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U7 Reader",
+       "qty": 24,
+       "shipped": 24
+      },
+      {
+       "isbn": "979-8-89180-161-5",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Image Cards U8 Fairy Tales",
+       "qty": 1,
+       "shipped": 1
+      },
+      {
+       "isbn": "979-8-89180-165-3",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Image Cards U9 Early Americas",
+       "qty": 1,
+       "shipped": 1
+      },
+      {
+       "isbn": "979-8-89180-194-3",
+       "name": "Amplify CKLA 3rd Ed G1 Code Poster Set",
+       "qty": 1,
+       "shipped": 1
+      },
+      {
+       "isbn": "979-8-89180-056-4",
+       "name": "Amplify CKLA 3rd Ed G1 Skills Activity Book Vol 1",
+       "qty": 28,
+       "shipped": 28
+      },
+      {
+       "isbn": "979-8-89180-057-1",
+       "name": "Amplify CKLA 3rd Ed G1 Skills Activity Book Vol 2",
+       "qty": 28,
+       "shipped": 28
+      },
+      {
+       "isbn": "979-8-89180-058-8",
+       "name": "Amplify CKLA 3rd Ed G1 Skills Activity Book Vol 3",
+       "qty": 28,
+       "shipped": 28
+      },
+      {
+       "isbn": "979-8-89180-085-4",
+       "name": "Amplify CKLA 3rd Ed G1 Knowledge D1-7, 10  Activity Book",
+       "qty": 28,
+       "shipped": 28
+      },
+      {
+       "isbn": "979-8-89180-087-8",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Activity Book U8 Fairy Tales",
+       "qty": 28,
+       "shipped": 28
+      },
+      {
+       "isbn": "979-8-89180-094-6",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Activity Book U9 Early Americas",
+       "qty": 28,
+       "shipped": 28
+      }
+     ]
+    }
+   ],
+   "orders": [
+    {
+     "msg": "Date Pending. Check back shortly.",
+     "lines": [
+      {
+       "isbn": "979-8-89404-065-3",
+       "name": "Amplify CKLA 3rd Ed G1 Knowledge Teacher Guide Set",
+       "qty": 1,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-88699-727-9",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Teacher Guide U8 Fairy Tales",
+       "qty": 1,
+       "shipped": 0
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Juniper Elementary",
+   "contact": "Rowan Price",
+   "street": "1900 Kestrel Pkwy",
+   "city": "Riverton",
+   "state": "IL",
+   "zip": "62561",
+   "country": "United States",
+   "shipments": [
+    {
+     "tracking": "1Z999AA1000000001",
+     "carrier": "UPS GROUND",
+     "status": "Delivered",
+     "shipDate": "2/24/2026",
+     "lines": [
+      {
+       "isbn": "979-8-89180-095-3",
+       "name": "Amplify CKLA 3rd Ed G2 Knowledge D1-7, 10  Activity Book",
+       "qty": 56,
+       "shipped": 56
+      },
+      {
+       "isbn": "979-8-89180-833-1",
+       "name": "Amplify CKLA 3rd Ed G2 Choice Activity Book U8 Immigration",
+       "qty": 56,
+       "shipped": 56
+      },
+      {
+       "isbn": "979-8-89180-834-8",
+       "name": "Amplify CKLA 3rd Ed G2 Choice Activity Book U9 Nutrition",
+       "qty": 56,
+       "shipped": 56
+      },
+      {
+       "isbn": "979-8-89180-062-5",
+       "name": "Amplify CKLA 3rd Ed G2 Skills Activity Book Vol 2",
+       "qty": 56,
+       "shipped": 56
+      },
+      {
+       "isbn": "979-8-89180-063-2",
+       "name": "Amplify CKLA 3rd Ed G2 Skills Activity Book Vol 3",
+       "qty": 56,
+       "shipped": 56
+      },
+      {
+       "isbn": "979-8-89180-059-5",
+       "name": "Amplify CKLA 3rd Ed G2 Skills Activity Book Vol 1",
+       "qty": 56,
+       "shipped": 56
+      },
+      {
+       "isbn": "978-1-63948-104-0",
+       "name": "Amplify CKLA G2 Research Unit Authentic Trade Book Collection",
+       "qty": 2,
+       "shipped": 2
+      },
+      {
+       "isbn": "979-8-89404-066-0",
+       "name": "Amplify CKLA 3rd Ed G2 Knowledge Teacher Guide Set",
+       "qty": 2,
+       "shipped": 2
+      },
+      {
+       "isbn": "979-8-89404-072-1",
+       "name": "Amplify CKLA 3rd Ed G2 Skills Teacher Guide Set",
+       "qty": 2,
+       "shipped": 2
+      },
+      {
+       "isbn": "979-8-89404-513-9",
+       "name": "Amplify CKLA 3rd Ed G2 Skills Ancillary Set",
+       "qty": 2,
+       "shipped": 2
+      },
+      {
+       "isbn": "979-8-89404-514-6",
+       "name": "Amplify CKLA 3rd Ed G2 Image Card Set",
+       "qty": 2,
+       "shipped": 2
+      },
+      {
+       "isbn": "979-8-88699-743-9",
+       "name": "Amplify CKLA 3rd Ed G2 Choice Teacher Guide U9 Nutrition",
+       "qty": 2,
+       "shipped": 2
+      },
+      {
+       "isbn": "979-8-89180-111-0",
+       "name": "Amplify CKLA 3rd Ed G2 Skills U1 Reader",
+       "qty": 48,
+       "shipped": 48
+      },
+      {
+       "isbn": "979-8-89180-112-7",
+       "name": "Amplify CKLA 3rd Ed G2 Skills U2 Reader",
+       "qty": 48,
+       "shipped": 48
+      },
+      {
+       "isbn": "979-8-89180-113-4",
+       "name": "Amplify CKLA 3rd Ed G2 Skills U3 Reader",
+       "qty": 48,
+       "shipped": 48
+      },
+      {
+       "isbn": "979-8-89180-114-1",
+       "name": "Amplify CKLA 3rd Ed G2 Skills U4 Reader",
+       "qty": 48,
+       "shipped": 48
+      },
+      {
+       "isbn": "979-8-89180-115-8",
+       "name": "Amplify CKLA 3rd Ed G2 Skills U5 Reader",
+       "qty": 48,
+       "shipped": 48
+      },
+      {
+       "isbn": "979-8-89180-116-5",
+       "name": "Amplify CKLA 3rd Ed G2 Skills U6 Reader",
+       "qty": 48,
+       "shipped": 48
+      },
+      {
+       "isbn": "979-8-89180-175-2",
+       "name": "Amplify CKLA 3rd Ed G2 Choice Image Cards U8 Immigration",
+       "qty": 2,
+       "shipped": 2
+      },
+      {
+       "isbn": "979-8-89180-176-9",
+       "name": "Amplify CKLA 3rd Ed G2 Choice Image Cards U9 Nutrition",
+       "qty": 2,
+       "shipped": 2
+      },
+      {
+       "isbn": "979-8-89180-198-1",
+       "name": "Amplify CKLA 3rd Ed G2 Code Poster Set",
+       "qty": 2,
+       "shipped": 2
+      }
+     ]
+    }
+   ],
+   "orders": [
+    {
+     "msg": "Date Pending. Check back shortly.",
+     "lines": [
+      {
+       "isbn": "979-8-88699-742-2",
+       "name": "Amplify CKLA 3rd Ed G2 Choice Teacher Guide U8 Immigration",
+       "qty": 2,
+       "shipped": 0
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Kestrel Academy",
+   "contact": "Parker Lane",
+   "street": "240 Lakeside Dr",
+   "city": "Maple Falls",
+   "state": "IL",
+   "zip": "62711",
+   "country": "United States",
+   "shipments": [
+    {
+     "tracking": "1Z999AA1000000006",
+     "carrier": "UPS GROUND",
+     "status": "Delivered",
+     "shipDate": "2/24/2026",
+     "lines": [
+      {
+       "isbn": "979-8-89180-724-2",
+       "name": "Amplify CKLA PreK Teacher Guide, Image Card Set",
+       "qty": 2,
+       "shipped": 2
+      },
+      {
+       "isbn": "978-1-68161-794-7",
+       "name": "Amplify CKLA PreK Trade Book Collection",
+       "qty": 2,
+       "shipped": 2
+      },
+      {
+       "isbn": "978-1-68161-792-3",
+       "name": "Amplify CKLA PreK Flip Book, Big Book, Poster Set",
+       "qty": 2,
+       "shipped": 2
+      }
+     ]
+    }
+   ],
+   "orders": []
+  },
+  {
+   "name": "Lakeside Elementary",
+   "contact": "Quinn Avery",
+   "street": "730 Meadow Ln",
+   "city": "Oak Grove",
+   "state": "IL",
+   "zip": "62522",
+   "country": "United States",
+   "shipments": [
+    {
+     "tracking": "1Z999AA1000000005",
+     "carrier": "UPS GROUND",
+     "status": "Shipped",
+     "shipDate": "2/24/2026",
+     "lines": [
+      {
+       "isbn": "979-8-89180-084-7",
+       "name": "Amplify CKLA 3rd Ed GK Choice Activity Book  U9 Seasons",
+       "qty": 75,
+       "shipped": 75
+      },
+      {
+       "isbn": "979-8-89180-151-6",
+       "name": "Amplify CKLA 3rd Ed GK Choice Image Cards U9 Seasons",
+       "qty": 3,
+       "shipped": 3
+      },
+      {
+       "isbn": "979-8-89180-078-6",
+       "name": "Amplify CKLA 3rd Ed GK Knowledge D1-7, 10  Activity Book",
+       "qty": 75,
+       "shipped": 75
+      },
+      {
+       "isbn": "979-8-89180-082-3",
+       "name": "Amplify CKLA 3rd Ed GK Choice Activity Book U8 Presidents",
+       "qty": 75,
+       "shipped": 75
+      },
+      {
+       "isbn": "978-1-63948-102-6",
+       "name": "Amplify CKLA GK Research Unit Authentic Trade Book Collection",
+       "qty": 3,
+       "shipped": 3
+      },
+      {
+       "isbn": "979-8-89404-076-9",
+       "name": "Amplify CKLA 3rd Ed GK Knowledge Teacher Guide Set",
+       "qty": 3,
+       "shipped": 3
+      },
+      {
+       "isbn": "979-8-89404-488-0",
+       "name": "Amplify CKLA 3rd Ed GK Image Card Set",
+       "qty": 3,
+       "shipped": 3
+      },
+      {
+       "isbn": "979-8-88699-716-3",
+       "name": "Amplify CKLA 3rd Ed GK Choice Teacher Guide U9 Seasons",
+       "qty": 3,
+       "shipped": 3
+      },
+      {
+       "isbn": "979-8-88699-714-9",
+       "name": "Amplify CKLA 3rd Ed GK Choice Teacher Guide U8 Presidents",
+       "qty": 3,
+       "shipped": 3
+      },
+      {
+       "isbn": "979-8-89180-149-3",
+       "name": "Amplify CKLA 3rd Ed GK Choice Image Cards U8 Presidents",
+       "qty": 3,
+       "shipped": 3
+      }
+     ]
+    }
+   ],
+   "orders": [
+    {
+     "msg": "Date Pending. Check back shortly.",
+     "lines": [
+      {
+       "isbn": "979-8-89404-076-9",
+       "name": "Amplify CKLA 3rd Ed GK Knowledge Teacher Guide Set",
+       "qty": 9,
+       "shipped": 0
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Meadowbrook Middle School",
+   "contact": "Reese Holt",
+   "street": "1575 Northgate Rd",
+   "city": "Springfield",
+   "state": "IL",
+   "zip": "62701",
+   "country": "United States",
+   "shipments": [
+    {
+     "tracking": "1Z999AA1000000002",
+     "carrier": "UPS GROUND",
+     "status": "Delivered",
+     "shipDate": "2/24/2026",
+     "lines": [
+      {
+       "isbn": "979-8-89180-833-1",
+       "name": "Amplify CKLA 3rd Ed G2 Choice Activity Book U8 Immigration",
+       "qty": 28,
+       "shipped": 28
+      },
+      {
+       "isbn": "978-1-63948-104-0",
+       "name": "Amplify CKLA G2 Research Unit Authentic Trade Book Collection",
+       "qty": 1,
+       "shipped": 1
+      },
+      {
+       "isbn": "979-8-89404-066-0",
+       "name": "Amplify CKLA 3rd Ed G2 Knowledge Teacher Guide Set",
+       "qty": 1,
+       "shipped": 1
+      },
+      {
+       "isbn": "979-8-89404-072-1",
+       "name": "Amplify CKLA 3rd Ed G2 Skills Teacher Guide Set",
+       "qty": 1,
+       "shipped": 1
+      },
+      {
+       "isbn": "979-8-89404-513-9",
+       "name": "Amplify CKLA 3rd Ed G2 Skills Ancillary Set",
+       "qty": 1,
+       "shipped": 1
+      },
+      {
+       "isbn": "979-8-89404-514-6",
+       "name": "Amplify CKLA 3rd Ed G2 Image Card Set",
+       "qty": 1,
+       "shipped": 1
+      },
+      {
+       "isbn": "979-8-88699-743-9",
+       "name": "Amplify CKLA 3rd Ed G2 Choice Teacher Guide U9 Nutrition",
+       "qty": 1,
+       "shipped": 1
+      },
+      {
+       "isbn": "979-8-89180-111-0",
+       "name": "Amplify CKLA 3rd Ed G2 Skills U1 Reader",
+       "qty": 24,
+       "shipped": 24
+      },
+      {
+       "isbn": "979-8-89180-112-7",
+       "name": "Amplify CKLA 3rd Ed G2 Skills U2 Reader",
+       "qty": 24,
+       "shipped": 24
+      },
+      {
+       "isbn": "979-8-89180-113-4",
+       "name": "Amplify CKLA 3rd Ed G2 Skills U3 Reader",
+       "qty": 24,
+       "shipped": 24
+      },
+      {
+       "isbn": "979-8-89180-114-1",
+       "name": "Amplify CKLA 3rd Ed G2 Skills U4 Reader",
+       "qty": 24,
+       "shipped": 24
+      },
+      {
+       "isbn": "979-8-89180-115-8",
+       "name": "Amplify CKLA 3rd Ed G2 Skills U5 Reader",
+       "qty": 24,
+       "shipped": 24
+      },
+      {
+       "isbn": "979-8-89180-116-5",
+       "name": "Amplify CKLA 3rd Ed G2 Skills U6 Reader",
+       "qty": 24,
+       "shipped": 24
+      },
+      {
+       "isbn": "979-8-89180-175-2",
+       "name": "Amplify CKLA 3rd Ed G2 Choice Image Cards U8 Immigration",
+       "qty": 1,
+       "shipped": 1
+      },
+      {
+       "isbn": "979-8-89180-176-9",
+       "name": "Amplify CKLA 3rd Ed G2 Choice Image Cards U9 Nutrition",
+       "qty": 1,
+       "shipped": 1
+      },
+      {
+       "isbn": "979-8-89180-198-1",
+       "name": "Amplify CKLA 3rd Ed G2 Code Poster Set",
+       "qty": 1,
+       "shipped": 1
+      },
+      {
+       "isbn": "979-8-89180-059-5",
+       "name": "Amplify CKLA 3rd Ed G2 Skills Activity Book Vol 1",
+       "qty": 28,
+       "shipped": 28
+      },
+      {
+       "isbn": "979-8-89180-062-5",
+       "name": "Amplify CKLA 3rd Ed G2 Skills Activity Book Vol 2",
+       "qty": 28,
+       "shipped": 28
+      },
+      {
+       "isbn": "979-8-89180-063-2",
+       "name": "Amplify CKLA 3rd Ed G2 Skills Activity Book Vol 3",
+       "qty": 28,
+       "shipped": 28
+      },
+      {
+       "isbn": "979-8-89180-095-3",
+       "name": "Amplify CKLA 3rd Ed G2 Knowledge D1-7, 10  Activity Book",
+       "qty": 28,
+       "shipped": 28
+      },
+      {
+       "isbn": "979-8-89180-834-8",
+       "name": "Amplify CKLA 3rd Ed G2 Choice Activity Book U9 Nutrition",
+       "qty": 28,
+       "shipped": 28
+      }
+     ]
+    }
+   ],
+   "orders": [
+    {
+     "msg": "Date Pending. Check back shortly.",
+     "lines": [
+      {
+       "isbn": "979-8-88699-742-2",
+       "name": "Amplify CKLA 3rd Ed G2 Choice Teacher Guide U8 Immigration",
+       "qty": 1,
+       "shipped": 0
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Northgate Elementary",
+   "contact": "Sage Turner",
+   "street": "46 Alder St",
+   "city": "Riverton",
+   "state": "IL",
+   "zip": "62561",
+   "country": "United States",
+   "shipments": [
+    {
+     "tracking": "1Z999AA1000000004",
+     "carrier": "UPS GROUND",
+     "status": "Delivered",
+     "shipDate": "2/24/2026",
+     "lines": [
+      {
+       "isbn": "979-8-89180-085-4",
+       "name": "Amplify CKLA 3rd Ed G1 Knowledge D1-7, 10  Activity Book",
+       "qty": 28,
+       "shipped": 28
+      },
+      {
+       "isbn": "979-8-89180-094-6",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Activity Book U9 Early Americas",
+       "qty": 28,
+       "shipped": 28
+      },
+      {
+       "isbn": "979-8-89180-087-8",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Activity Book U8 Fairy Tales",
+       "qty": 28,
+       "shipped": 28
+      },
+      {
+       "isbn": "979-8-89404-500-9",
+       "name": "Amplify CKLA 3rd Ed G1 Skills Ancillary Set",
+       "qty": 1,
+       "shipped": 1
+      },
+      {
+       "isbn": "979-8-89404-501-6",
+       "name": "Amplify CKLA 3rd Ed G1 Image Card Set",
+       "qty": 1,
+       "shipped": 1
+      },
+      {
+       "isbn": "979-8-88699-730-9",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Teacher Guide U9 Early Americas",
+       "qty": 1,
+       "shipped": 1
+      },
+      {
+       "isbn": "979-8-89180-102-8",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U1 Reader",
+       "qty": 24,
+       "shipped": 24
+      },
+      {
+       "isbn": "979-8-89180-103-5",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U2 Reader",
+       "qty": 24,
+       "shipped": 24
+      },
+      {
+       "isbn": "978-1-63948-103-3",
+       "name": "Amplify CKLA G1 Research Unit Authentic Trade Book Collection",
+       "qty": 1,
+       "shipped": 1
+      },
+      {
+       "isbn": "979-8-89404-071-4",
+       "name": "Amplify CKLA 3rd Ed G1 Skills Teacher Guide Set",
+       "qty": 1,
+       "shipped": 1
+      },
+      {
+       "isbn": "979-8-89180-104-2",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U3 Reader",
+       "qty": 24,
+       "shipped": 24
+      },
+      {
+       "isbn": "979-8-89180-105-9",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U4 Reader",
+       "qty": 24,
+       "shipped": 24
+      },
+      {
+       "isbn": "979-8-89180-106-6",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U5 Reader",
+       "qty": 24,
+       "shipped": 24
+      },
+      {
+       "isbn": "979-8-89180-107-3",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U6 Reader",
+       "qty": 24,
+       "shipped": 24
+      },
+      {
+       "isbn": "979-8-89180-110-3",
+       "name": "Amplify CKLA 3rd Ed G1 Skills U7 Reader",
+       "qty": 24,
+       "shipped": 24
+      },
+      {
+       "isbn": "979-8-89180-161-5",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Image Cards U8 Fairy Tales",
+       "qty": 1,
+       "shipped": 1
+      },
+      {
+       "isbn": "979-8-89180-165-3",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Image Cards U9 Early Americas",
+       "qty": 1,
+       "shipped": 1
+      },
+      {
+       "isbn": "979-8-89180-194-3",
+       "name": "Amplify CKLA 3rd Ed G1 Code Poster Set",
+       "qty": 1,
+       "shipped": 1
+      },
+      {
+       "isbn": "979-8-89180-056-4",
+       "name": "Amplify CKLA 3rd Ed G1 Skills Activity Book Vol 1",
+       "qty": 28,
+       "shipped": 28
+      },
+      {
+       "isbn": "979-8-89180-057-1",
+       "name": "Amplify CKLA 3rd Ed G1 Skills Activity Book Vol 2",
+       "qty": 28,
+       "shipped": 28
+      },
+      {
+       "isbn": "979-8-89180-058-8",
+       "name": "Amplify CKLA 3rd Ed G1 Skills Activity Book Vol 3",
+       "qty": 28,
+       "shipped": 28
+      }
+     ]
+    }
+   ],
+   "orders": [
+    {
+     "msg": "Date Pending. Check back shortly.",
+     "lines": [
+      {
+       "isbn": "979-8-89404-065-3",
+       "name": "Amplify CKLA 3rd Ed G1 Knowledge Teacher Guide Set",
+       "qty": 1,
+       "shipped": 0
+      },
+      {
+       "isbn": "979-8-88699-727-9",
+       "name": "Amplify CKLA 3rd Ed G1 Choice Teacher Guide U8 Fairy Tales",
+       "qty": 1,
+       "shipped": 0
+      }
+     ]
+    }
+   ]
+  }
+ ]
+};
+const STATUS_OPTIONS = [{v:'',l:'All'},{v:'Preparing Your Order',l:'Preparing Your Order'},{v:'Shipped',l:'Shipped'},{v:'Delivered',l:'Delivered'}];
+// the real page opens on the first location alphabetically; here we open on one that has both a shipment and unshipped lines
+const st = { loc: Math.max(0, DATA.locations.findIndex(l => l.shipments.length && l.orders.length)), search: '', status: '', screen: 'ok', version: 'new', nvLoc: -1, nvq: '', nvStatus: '', nvFind: '', nvExp: {} };
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ico = (n, c = '') => `<svg class="slds-icon ${c}" aria-hidden="true"><use href="#u-${n}"></use></svg>`;
+
+// ---- same logic the Apex + LWCs apply: headers per tracking number / per delivery message, filtered by status and search key ----
+function headers(loc) {
+    const key = st.search.trim().toLowerCase();
+    const match = l => !key || (l.name || '').toLowerCase().includes(key) || (l.isbn || '').toLowerCase().includes(key);
+    const out = [];
+    loc.orders.forEach(g => {                                       // not yet shipped ("order" headers come first)
+        const lines = g.lines.filter(match);
+        if (lines.length && (!st.status || 'Preparing Your Order'.includes(st.status))) out.push({ name: g.msg, status: 'Preparing Your Order', track: false, lines });
+    });
+    loc.shipments.forEach(s => {                                    // shipments with tracking
+        const lines = s.lines.filter(match);
+        if (lines.length && (!st.status || s.status.includes(st.status))) out.push({ name: 'TRACKING NUMBER:' + s.tracking, status: s.status, track: true, carrier: s.carrier, shipDate: s.shipDate, tracking: s.tracking, lines });
+    });
+    return out;
+}
+
+function leftPanel(loc) {
+    return `<div class="left">
+      <br>Quote number: <div class="medium2">${esc(DATA.pq)}</div><br>
+      Account: <div class="medium2">${esc(DATA.district)}</div>
+      <br>Customer PO: <div class="medium2"> ${esc(DATA.po)} </div>
+      <br><br>
+      <div class="slds-form-element medium">
+        <label class="slds-form-element__label" for="loc">Delivery location</label>
+        <div class="slds-form-element__control"><div class="slds-select_container"><select class="slds-select" id="loc">${DATA.locations.map((l, i) => `<option value="${i}" ${i === st.loc ? 'selected' : ''}>${esc(l.name)}</option>`).join('')}</select></div></div>
+      </div>
+      <div class="medium"><br><p class="medium2" style="margin:0">Shipping details: </p>
+        <div class="shadedbox">
+          <span>Account: <b>${esc(loc.name)} </b></span><br>
+          <span>Contact: <b>${esc(loc.contact)} </b></span><br>
+          <span><b>${esc(loc.street)} </b></span><br>
+          <span><b>${esc(loc.city)}, ${esc(loc.state)} ${esc(loc.zip)} </b></span><br>
+          <span><b>${esc(loc.country)}</b></span><br>
+        </div></div>
+      <br><br>
+      <p class="medium"><em>You have 60 (sixty) days to inventory the delivered materials. If there are missing or damaged materials, please provide the following information to <a href="#" onclick="return false">the customer care team</a>:</em></p><br>
+      <ul class="small" style="list-style:disc;padding-left:1.5rem">
+        <li><p style="margin:.25rem 0">Quote number for your order.</p></li>
+        <li><p style="margin:.25rem 0">The product name(s) and quantities of the missing, damaged, or misprinted materials.</p></li>
+        <li><p style="margin:.25rem 0">Your school contact name and email address.</p></li></ul>
+    </div>`;
+}
+
+function overview(hs) {
+    const n = s => hs.filter(h => h.status === s).length;
+    const sh = { total: hs.length, processing: n('Preparing Your Order'), shipped: n('Shipped'), delivered: n('Delivered') };
+    const mk = c => `slds-progress__marker ${c > 0 ? 'green_marker' : ''}`;
+    return { sh, html: `<div class="card slds-card slds-var-p-around_large"><section>
+      <div class="slds-grid slds-gutters slds-grid_vertical-align-center slds-wrap">
+        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2 brand">
+          <h1 class="title">Order overview</h1><br>
+          <p class="medium" style="margin:0 0 1rem"> Your order has been divided into:</p>
+          <p class="medium" style="margin:0 0 1rem"><span class="colorpop">${sh.total}</span> Shipment(s)</p>
+          <div class="search slds-form-element"><div class="slds-form-element__control slds-input-has-icon slds-input-has-icon_left">${ico('search', 'slds-input__icon slds-input__icon_left slds-icon-text-default')}<input class="slds-input" type="search" id="q" placeholder="Search by key word, product or ISBN" value="${esc(st.search)}"></div></div>
+          <div class="slds-form-element"><div class="slds-form-element__control"><div class="slds-select_container"><select class="slds-select" id="status" aria-label="Status">${STATUS_OPTIONS.map(o => `<option value="${o.v}" ${o.v === st.status ? 'selected' : ''}>${o.v ? o.l : 'Filter by Status'}</option>`).join('')}</select></div></div></div>
+        </div>
+        <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2"><div class="slds-progress slds-progress_vertical"><ol class="slds-progress__list">
+          <li class="slds-progress__item"><div class="slds-progress__marker"><span class="slds-assistive-text">Ordered</span></div><div class="slds-progress__item_content slds-grid slds-grid_align-spread">Ordered</div></li>
+          <li class="slds-progress__item"><div class="${mk(sh.processing)}"></div><div class="slds-progress__item_content slds-grid slds-grid_align-spread">Preparing your order: ${sh.processing} shipment(s)</div></li>
+          <li class="slds-progress__item"><div class="${mk(sh.shipped)}"></div><div class="slds-progress__item_content slds-grid slds-grid_align-spread">Shipped: ${sh.shipped} shipment(s)</div></li>
+          <li class="slds-progress__item"><div class="${mk(sh.delivered)}"></div><div class="slds-progress__item_content slds-grid slds-grid_align-spread">Delivered: ${sh.delivered} shipment(s)</div></li>
+        </ol></div></div>
+      </div></section></div>` };
+}
+
+function results(hs) {
+    const multi = hs.length > 1;
+    const body = hs.length ? hs.map(h => `
+      <article class="delivery"><div class="head"><span class="medium">${esc(h.name)}</span></div>
+        <div class="tile"><br>
+          <div class="row3">
+            <div>${h.track ? `<p>Shipped Date: ${esc(h.shipDate)} </p><p>Carrier: ${esc(h.carrier)} </p>` : ''}</div>
+            <div><p>Shipment Status:  </p><span class="badge-ship">${esc(h.status)}</span><br><br></div>
+            <div>${h.track ? `<a class="slds-button slds-button_brand" href="#" onclick="return false" title="Opens the carrier’s tracking page in a new tab">${ico('new_window', 'slds-button__icon slds-button__icon_left')} Track Shipment</a>` : ''}</div>
+          </div>
+          <div class="lines"><div class="line h"><span>Product ISBN</span><span>Product name</span><span>Quantity</span></div>
+            ${h.lines.map(l => `<div class="line"><span>${esc(l.isbn)}</span><span>${esc(l.name)}</span><span>${h.track ? l.shipped : l.qty}</span></div>`).join('')}</div>
+        </div></article>`).join('')
+      : `<div class="empty"><p>No data is available. </p><br><p>For any questions regarding your order, contact <a href="#" onclick="return false">help@amplify.com</a>.</p></div>`;
+    return `<div class="results slds-var-p-around_large"><section><h1 class="title">Individual deliveries:</h1><br>
+      ${multi ? `<p><em>To allow for an on time delivery, your materials order will arrive as a split shipment. </em></p><p><em> Review the details on this page for more information.</em></p>` : ''}
+      <div class="slds-var-p-around_large">${body}</div></section></div>`;
+}
+
+function render() {
+    const root = $('root');
+    if (st.screen === 'error') { root.innerHTML = `<div class="screen-msg"><p style="font-size:16px;margin:0">Ooops, something went wrong.  Please try again or contact help@amplify.com.</p></div>`; return; }
+    if (st.screen === 'invalid') { root.innerHTML = `<div class="screen-msg"><p style="font-size:16px;margin:0 0 1rem">No data is available. </p><p style="font-size:16px;margin:0">For any questions regarding your order, <a href="#" onclick="return false">contact the customer care team</a>. </p></div>`; return; }
+    if (st.version === 'new') { renderNew(); return; }
+    const loc = DATA.locations[st.loc], hs = headers(loc), ov = overview(hs);
+    root.innerHTML = `<div class="cols"><div>${leftPanel(loc)}</div><div>${ov.html}${results(hs)}</div></div>
+      <div class="footer-note"><p>Data Last Updated: ${esc(DATA.updated)}</p>
+        <p>As of September 25, 2025, Amplify Desmos Math CCSS Grades 1 and 2 Teacher Editions will ship in our new four-book format. You’ll see the same content, thoughtfully reconfigured into smaller volumes to make daily use easier.</p>
+        <p>We're updating the Shipment Status Page with more reliable delivery window information. Your materials are on track and will arrive as planned. No action needed.</p></div>`;
+}
+
+// =====================================================================
+// NEW Shipment Status Page (first pass)
+// =====================================================================
+const SPEC = {
+    'Preparing Your Order': { label: 'Preparing', c: 'var(--prep)', bg: 'var(--prepbg)', step: 1 },
+    'Shipped':              { label: 'Shipped',   c: 'var(--ship)', bg: 'var(--shipbg)', step: 2 },
+    'Delivered':            { label: 'Delivered', c: 'var(--deliv)', bg: 'var(--delivbg)', step: 3 }
+};
+const ORDER = ['Preparing Your Order', 'Shipped', 'Delivered'];
+const sumq = a => a.reduce((x, y) => x + (+y || 0), 0);
+const fmt = n => (+n || 0).toLocaleString();
+
+// every delivery at a location: groups still being prepared, plus shipments with tracking
+function nvAll(loc, li) {
+    const out = [];
+    loc.orders.forEach((g, i) => out.push({ id: li + 'o' + i, kind: 'prep', status: 'Preparing Your Order', title: g.msg, lines: g.lines.map(l => ({ isbn: l.isbn, name: l.name, qty: l.qty })) }));
+    loc.shipments.forEach((x, i) => out.push({ id: li + 's' + i, kind: 'ship', status: x.status, tracking: x.tracking, carrier: x.carrier, shipDate: x.shipDate, lines: x.lines.map(l => ({ isbn: l.isbn, name: l.name, qty: l.shipped })) }));
+    return out;
+}
+// search applies to product name, ISBN and tracking number; the status filter is optional
+function nvDeliveries(loc, li, ignoreStatus) {
+    const key = st.nvq.trim().toLowerCase();
+    return nvAll(loc, li).map(d => {
+        if (!key || (d.tracking || '').toLowerCase().includes(key)) return d;
+        const lines = d.lines.filter(l => (l.name || '').toLowerCase().includes(key) || (l.isbn || '').toLowerCase().includes(key));
+        return lines.length ? { ...d, lines } : null;
+    }).filter(Boolean).filter(d => ignoreStatus || !st.nvStatus || d.status === st.nvStatus);
+}
+const nvCounts = list => { const c = {}; ORDER.forEach(k => c[k] = { n: 0, u: 0 }); list.forEach(d => { c[d.status].n++; c[d.status].u += sumq(d.lines.map(l => l.qty)); }); return c; };
+const nvBadge = status => { const sp = SPEC[status]; return `<span class="nv-badge" style="--c:${sp.c};--bg:${sp.bg}">${sp.label}</span>`; };
+
+function nvCard(d) {
+    const sp = SPEC[d.status], open = !!st.nvExp[d.id], shown = open ? d.lines : d.lines.slice(0, 4);
+    const units = sumq(d.lines.map(l => l.qty));
+    const est = /^ESTIMATED DELIVERY:/i.test(d.title || '') ? d.title.replace(/^ESTIMATED DELIVERY:\s*/i, '') : null;
+    const heading = d.kind === 'ship'
+        ? `Tracking number <code>${esc(d.tracking)}</code> <button class="nv-copy" data-nv-copy="${esc(d.tracking)}" title="Copy tracking number" aria-label="Copy tracking number">${ico('copy', 'slds-icon_x-small')}</button>`
+        : (est ? 'Estimated delivery' : 'Delivery date pending');
+    const meta = d.kind === 'ship'
+        ? `<span><b>Carrier</b> ${esc(d.carrier)}</span><span><b>Shipped</b> ${esc(d.shipDate)}</span>`
+        : (est ? `<span><b>Expected</b> ${esc(est)}</span>` : `<span class="muted">We’ll update this page as soon as a delivery date is confirmed.</span>`);
+    const steps = ['Ordered', 'Preparing', 'Shipped', 'Delivered'].map((n, i) => `<li class="${i <= sp.step ? 'done' : ''} ${i === sp.step ? 'cur' : ''}">${n}</li>`).join('');
+    return `<article class="nv-card" style="--c:${sp.c};--bg:${sp.bg}">
+      <header><div class="hd"><div class="kick">${d.kind === 'ship' ? 'Shipment' : 'In preparation'}</div><h3>${heading}</h3></div>${nvBadge(d.status)}</header>
+      <div class="nv-meta">${meta}</div>
+      <ol class="nv-steps" aria-label="Progress">${steps}</ol>
+      ${d.kind === 'ship' ? `<div class="nv-actions"><a class="slds-button slds-button_brand" href="#" data-nv-track title="Opens the carrier’s tracking page in a new tab">${ico('new_window', 'slds-button__icon slds-button__icon_left')} Track shipment</a></div>` : ''}
+      <table class="nv-lines"><thead><tr><th>ISBN</th><th>Product</th><th class="q">Qty</th></tr></thead>
+        <tbody>${shown.map(l => `<tr><td>${esc(l.isbn)}</td><td>${esc(l.name)}</td><td class="q">${fmt(l.qty)}</td></tr>`).join('')}</tbody>
+        <tfoot><tr><td colspan="2">${d.lines.length} item${d.lines.length === 1 ? '' : 's'}</td><td class="q">${fmt(units)} units</td></tr></tfoot></table>
+      ${d.lines.length > 4 ? `<button class="nv-more" data-nv-exp="${d.id}">${open ? 'Show fewer items' : `Show all ${d.lines.length} items`}</button>` : ''}
+    </article>`;
+}
+
+function renderNew() {
+    const locs = DATA.locations;
+    const view = locs.map((l, i) => ({ l, i, ds: nvDeliveries(l, i, false), all: nvDeliveries(l, i, true) }));
+    const visible = view.filter(v => v.ds.length);
+    const bySearch = view.flatMap(v => v.all);                 // counts ignore the status filter so the tiles stay meaningful
+    const cnt = nvCounts(bySearch), totalUnits = sumq(ORDER.map(k => cnt[k].u)) || 1, totalDel = sumq(ORDER.map(k => cnt[k].n));
+    const find = st.nvFind.trim().toLowerCase();
+    const railItems = visible.filter(v => !find || v.l.name.toLowerCase().includes(find));
+    const sel = st.nvLoc >= 0 ? view[st.nvLoc] : null;
+
+    const head = `<div class="nv-head"><div class="t"><h1 class="slds-text-heading_large">Shipment status</h1></div>
+      <div class="nv-sum"><span class="l">Quote number</span><span class="v">${esc(DATA.pq)}</span></div>
+      <div class="nv-sum"><span class="l">Account</span><span class="v">${esc(DATA.district)}</span></div>
+      <div class="nv-sum"><span class="l">Customer PO</span><span class="v">${esc(DATA.po)}</span></div>
+      <div class="nv-sum"><span class="l">Delivery locations</span><span class="v">${locs.length}</span></div>
+      <div class="nv-sum right"><span class="l">Data last updated</span><span class="v">${esc(DATA.updated)}</span></div></div>`;
+    const note = (id, title, body) => `<details class="nv-note"><summary>${ico('info', 'slds-icon_x-small')}<b>${title}</b><span class="hint">Show</span></summary><div class="body">${body}</div></details>`;
+    const note1 = note('n1', 'Check each delivery within 60 days',
+        `<p>If anything is missing, damaged or misprinted, contact <a href="#" onclick="return false">the customer care team</a> and include:</p><ul style="list-style:disc;padding-left:1.25rem;margin:.25rem 0 0"><li>Your quote number</li><li>The product name(s) and quantities that are missing, damaged or misprinted</li><li>Your school contact name and email address</li></ul>`);
+    const note2 = note('n2', 'Order updates (2)',
+        `<p>As of September 25, 2025, Amplify Desmos Math CCSS Grades 1 and 2 Teacher Editions ship in a new four-book format. It’s the same content, reconfigured into smaller volumes that are easier to use every day.</p><p>We’re adding more reliable delivery windows to this page. Your materials are on track and will arrive as planned. No action needed.</p>`);
+    const tiles = ORDER.map(k => { const sp = SPEC[k]; return `<button class="nv-tile ${st.nvStatus === k ? 'on' : ''}" style="--c:${sp.c}" data-nv-status="${k}" aria-pressed="${st.nvStatus === k}"><div class="k">${sp.label}</div><div class="n">${cnt[k].n}</div><div class="u">shipment${cnt[k].n === 1 ? '' : 's'} · ${fmt(cnt[k].u)} units</div></button>`; }).join('');
+    const bar = `<div class="nv-bar" role="img" aria-label="Units by status">${[['Delivered'], ['Shipped'], ['Preparing Your Order']].map(([k]) => `<i style="width:${100 * cnt[k].u / totalUnits}%;background:${SPEC[k].c}"></i>`).join('')}</div>
+      <div class="nv-legend"><span><b>${fmt(cnt['Delivered'].u)}</b> of <b>${fmt(totalUnits)}</b> units delivered (${Math.round(100 * cnt['Delivered'].u / totalUnits)}%)</span>${ORDER.slice().reverse().map(k => `<span><i class="nv-dot" style="--c:${SPEC[k].c}"></i>${SPEC[k].label} ${fmt(cnt[k].u)}</span>`).join('')}</div>`;
+    const chips = [['', 'All', totalDel], ...ORDER.map(k => [k, SPEC[k].label, cnt[k].n])].map(([v, l, n]) => `<button class="nv-chip ${st.nvStatus === v ? 'on' : ''}" data-nv-status="${v}">${l}<b>${n}</b></button>`).join('');
+    const toolbar = `<div class="nv-toolbar"><div class="search"><div class="slds-form-element"><div class="slds-form-element__control slds-input-has-icon slds-input-has-icon_left">${ico('search', 'slds-input__icon slds-input__icon_left slds-icon-text-default')}<input class="slds-input" id="nvq" type="search" placeholder="Search products, ISBN or tracking number" value="${esc(st.nvq)}"></div></div></div>
+      <div class="nv-chips" role="group" aria-label="Status">${chips}</div><span class="nv-count">${visible.length} of ${locs.length} locations</span></div>`;
+
+    const pills = v => { const c = nvCounts(v.ds); return ORDER.filter(k => c[k].n).map(k => `<span><i class="nv-dot" style="--c:${SPEC[k].c}"></i>${c[k].n} ${SPEC[k].label.toLowerCase()}</span>`).join(''); };
+    const rail = `<aside class="nv-rail"><div class="rh">Delivery locations</div>
+      ${locs.length > 8 ? `<div class="find"><div class="slds-form-element"><div class="slds-form-element__control slds-input-has-icon slds-input-has-icon_left">${ico('search', 'slds-input__icon slds-input__icon_left slds-icon-text-default')}<input class="slds-input" id="nvfind" type="search" placeholder="Find a location" value="${esc(st.nvFind)}"></div></div></div>` : ''}
+      <div class="list"><button class="nv-item ${st.nvLoc === -1 ? 'on' : ''}" data-nv-loc="-1"><span class="nm">All locations</span><span class="pills"><span>${visible.length} location${visible.length === 1 ? '' : 's'} · ${totalDel} shipment${totalDel === 1 ? '' : 's'}</span></span></button>
+      ${railItems.map(v => `<button class="nv-item ${st.nvLoc === v.i ? 'on' : ''}" data-nv-loc="${v.i}"><span class="nm">${esc(v.l.name)}</span><span class="pills">${pills(v)}</span></button>`).join('')}
+      ${railItems.length ? '' : '<div class="nv-empty" style="padding:1rem"><p>No locations match.</p></div>'}</div></aside>`;
+    const mobile = `<div class="nv-mobile"><div class="slds-form-element"><label class="slds-form-element__label" for="nvloc">Delivery location</label><div class="slds-form-element__control"><div class="slds-select_container"><select class="slds-select" id="nvloc"><option value="-1" ${st.nvLoc === -1 ? 'selected' : ''}>All locations (${visible.length})</option>${visible.map(v => `<option value="${v.i}" ${st.nvLoc === v.i ? 'selected' : ''}>${esc(v.l.name)}</option>`).join('')}</select></div></div></div></div>`;
+
+    let main;
+    if (!sel) {
+        main = visible.length ? `<table class="nv-overview"><thead><tr><th>Location</th><th class="c">Preparing</th><th class="c">Shipped</th><th class="c">Delivered</th><th class="c">Units</th><th></th></tr></thead><tbody>
+          ${visible.map(v => { const c = nvCounts(v.ds); return `<tr class="row" data-nv-loc="${v.i}"><td><b>${esc(v.l.name)}</b><div style="font-size:.75rem;color:#706e6b">${esc(v.l.city)}, ${esc(v.l.state)}</div></td>${ORDER.map(k => `<td class="c">${c[k].n ? `<span class="nv-pill" style="--c:${SPEC[k].c};--bg:${SPEC[k].bg}">${c[k].n}</span>` : '<span class="zero">–</span>'}</td>`).join('')}<td class="c">${fmt(sumq(ORDER.map(k => c[k].u)))}</td><td class="c" style="width:2rem">${ico('chevronright', 'slds-icon_x-small slds-icon-text-default')}</td></tr>`; }).join('')}</tbody></table>`
+          : `<div class="nv-empty"><p><b>No deliveries match your search.</b></p><p>Try a different product, ISBN or tracking number, or clear the filters.</p></div>`;
+    } else if (!sel.ds.length) {
+        main = `<div class="nv-empty"><p><b>Nothing to show at ${esc(sel.l.name)} with these filters.</b></p><p>Clear the search or status filter to see all of its deliveries.</p></div>`;
+    } else {
+        const order = { 'Shipped': 0, 'Preparing Your Order': 1, 'Delivered': 2 };
+        main = `<div class="nv-loc"><h2>${esc(sel.l.name)}</h2>
+          <div class="a"><b>Deliver to</b>${esc(sel.l.street)}<br>${esc(sel.l.city)}, ${esc(sel.l.state)} ${esc(sel.l.zip)}</div><div class="a"><b>Contact</b>${esc(sel.l.contact)}</div></div>
+          ${sel.ds.slice().sort((a, b) => order[a.status] - order[b.status]).map(nvCard).join('')}`;
+    }
+    $('root').innerHTML = `<div class="nv">${head}<div class="nv-notes">${note1}${note2}</div><div class="nv-stats">${tiles}</div>${bar}${toolbar}${mobile}<div class="nv-split">${rail}<section class="nv-main">${main}</section></div></div><div id="toast" class="nv-toast" hidden></div>`;
+}
+const toast = msg => { const t = $('toast'); if (!t) return; t.textContent = msg; t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => t.hidden = true, 1800); };
+document.addEventListener('click', e => {
+    const t = e.target.closest('[data-nv-loc],[data-nv-status],[data-nv-exp],[data-nv-copy],[data-nv-track]'); if (!t) return;
+    const d = t.dataset;
+    if ('nvTrack' in d) { e.preventDefault(); toast('Opens the carrier’s tracking page in a new tab'); return; }
+    if (d.nvCopy) { navigator.clipboard && navigator.clipboard.writeText(d.nvCopy).catch(() => {}); toast('Tracking number copied'); return; }
+    if (d.nvLoc !== undefined) st.nvLoc = +d.nvLoc;
+    else if (d.nvStatus !== undefined) st.nvStatus = (st.nvStatus === d.nvStatus ? '' : d.nvStatus);
+    else if (d.nvExp) st.nvExp[d.nvExp] = !st.nvExp[d.nvExp];
+    render();
+});
+
+document.addEventListener('change', e => {
+    if (e.target.name === 'ver') { st.version = e.target.id === 'v-new' ? 'new' : 'existing'; render(); return; }
+    if (e.target.id === 'nvloc') { st.nvLoc = +e.target.value; render(); return; }
+    if (e.target.id === 'loc') { st.loc = +e.target.value; render(); }
+    else if (e.target.id === 'status') { st.status = e.target.value; render(); }
+    else if (e.target.id === 'screenSel') { st.screen = e.target.value; render(); }
+});
+document.addEventListener('input', e => {
+    if (e.target.id === 'nvq' || e.target.id === 'nvfind') { const k = e.target.id === 'nvq' ? 'nvq' : 'nvFind', id = e.target.id; st[k] = e.target.value; const p = e.target.selectionStart; render(); const b = $(id); if (b) { b.focus(); b.setSelectionRange(p, p); } return; }
+    if (e.target.id === 'q') { st.search = e.target.value; const p = e.target.selectionStart; render(); const b = $('q'); b.focus(); b.setSelectionRange(p, p); } });
+render();
+</script>
+</body>
+</html>

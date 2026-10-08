@@ -1,0 +1,827 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <apiVersion>63.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <description>Store the record ID of the Order selected from the datatable.</description>
+        <name>Assign_Selected_OrderID_for_Output</name>
+        <label>Assign Selected OrderID for Output</label>
+        <locationX>314</locationX>
+        <locationY>674</locationY>
+        <assignmentItems>
+            <assignToReference>Output_Selected_BSO_ID</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dt_Blanket_Sales_Orders.outputSelectedRow.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>Output_Selected_BSO_Account_Id</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>dt_Blanket_Sales_Orders.outputSelectedRow.Account_Name__c</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Create_Order_Allocation_Request</targetReference>
+        </connector>
+    </assignments>
+    <collectionProcessors>
+        <description>Apply filters to BSO results.</description>
+        <name>BSO_Filters</name>
+        <elementSubtype>FilterCollectionProcessor</elementSubtype>
+        <label>BSO Filters</label>
+        <locationX>182</locationX>
+        <locationY>350</locationY>
+        <assignNextValueToReference>currentItem_BSO_Filters</assignNextValueToReference>
+        <collectionProcessorType>FilterCollectionProcessor</collectionProcessorType>
+        <collectionReference>Get_Blanket_Sales_Orders</collectionReference>
+        <conditionLogic>and</conditionLogic>
+        <conditions>
+            <leftValueReference>currentItem_BSO_Filters.Sync_Status__c</leftValueReference>
+            <operator>EqualTo</operator>
+            <rightValue>
+                <stringValue>Sync Successful</stringValue>
+            </rightValue>
+        </conditions>
+        <conditions>
+            <leftValueReference>currentItem_BSO_Filters.Status__c</leftValueReference>
+            <operator>NotEqualTo</operator>
+            <rightValue>
+                <stringValue>Closed</stringValue>
+            </rightValue>
+        </conditions>
+        <conditions>
+            <leftValueReference>currentItem_BSO_Filters.Status__c</leftValueReference>
+            <operator>NotEqualTo</operator>
+            <rightValue>
+                <stringValue>Cancelled</stringValue>
+            </rightValue>
+        </conditions>
+        <connector>
+            <targetReference>Were_any_BSOs_found</targetReference>
+        </connector>
+    </collectionProcessors>
+    <decisions>
+        <description>Checks if any BSO were found.</description>
+        <name>Were_any_BSOs_found</name>
+        <label>Were any BSOs found?</label>
+        <locationX>182</locationX>
+        <locationY>458</locationY>
+        <defaultConnector>
+            <targetReference>Blanket_Sales_Orders</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>BSOs found</defaultConnectorLabel>
+        <rules>
+            <name>BSOs_not_found</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Blanket_Sales_Orders</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>BSO_not_found</targetReference>
+            </connector>
+            <label>BSOs not found</label>
+        </rules>
+    </decisions>
+    <description>3/3/26 - [RFS23-12886] Add new &quot;Program&quot; field to BSO data table.
+2/23/26 - RFS23 -11881 Order management language - Updated Manager Order wording.
+Show Blanket Sales Order details in CALM portal on Order Logistics - Orders. [RFS23-3689]
+11/25/25 - [RFS23-11707] Add SSP link to BSO table
+9/4/25 - [RFS23-10955] Update API version. Update no orders screen.
+5/6/25 - language change. Web form link added
+3/4/25 - [RFS23-8423] Added an additional entry criteria to filter out Fully Shipped BSOs.
+2/7/25 - [RFS23-7646] Language update.
+
+1/2/25 - [RFS23-7585] Hide BSOs with an RMA Status = RMA in Progress.
+
+12/2/24 - Update text.
+
+11/20/24 - [RFS23-7395] Add additional filter to exclude BSOs with &quot;Hide BSO From Customer = TRUE&quot;. [RFS23-7509] Update columns on BSO table.
+
+11/15 - Enable pagination on table.
+
+6/25/24 - [RFS23-5808] Update description of &quot;Status&quot;.
+
+BSO filtering added [RFS23-4028]
+2/7 Updated BSO filter logic ; updated columns in datatable ; language update.
+2/14 button update to &quot;Select my quantities&quot;
+2/28/23 - Add additional criterial to get BSOs based on Primary Contact field.</description>
+    <dynamicChoiceSets>
+        <name>elevator</name>
+        <dataType>Picklist</dataType>
+        <displayField xsi:nil="true"/>
+        <object xsi:nil="true"/>
+        <picklistField>Elevator_to_Move_Pallets__c</picklistField>
+        <picklistObject>Shipping_Address__c</picklistObject>
+    </dynamicChoiceSets>
+    <dynamicChoiceSets>
+        <name>entryway</name>
+        <dataType>Picklist</dataType>
+        <displayField xsi:nil="true"/>
+        <object xsi:nil="true"/>
+        <picklistField>Can_Entryway_Receive_Pallets__c</picklistField>
+        <picklistObject>Shipping_Address__c</picklistObject>
+    </dynamicChoiceSets>
+    <dynamicChoiceSets>
+        <name>groundLevel</name>
+        <dataType>Picklist</dataType>
+        <displayField xsi:nil="true"/>
+        <object xsi:nil="true"/>
+        <picklistField>Ground_Level_Delivery_Reception__c</picklistField>
+        <picklistObject>Shipping_Address__c</picklistObject>
+    </dynamicChoiceSets>
+    <dynamicChoiceSets>
+        <name>highLoadingDock</name>
+        <dataType>Picklist</dataType>
+        <displayField xsi:nil="true"/>
+        <object xsi:nil="true"/>
+        <picklistField>High_Loading_Dock__c</picklistField>
+        <picklistObject>Shipping_Address__c</picklistObject>
+    </dynamicChoiceSets>
+    <dynamicChoiceSets>
+        <name>liftgate</name>
+        <dataType>Picklist</dataType>
+        <displayField xsi:nil="true"/>
+        <object xsi:nil="true"/>
+        <picklistField>Lift_Gate_Required__c</picklistField>
+        <picklistObject>Shipping_Address__c</picklistObject>
+    </dynamicChoiceSets>
+    <dynamicChoiceSets>
+        <name>palletJack</name>
+        <dataType>Picklist</dataType>
+        <displayField xsi:nil="true"/>
+        <object xsi:nil="true"/>
+        <picklistField>Pallet_Jack__c</picklistField>
+        <picklistObject>Shipping_Address__c</picklistObject>
+    </dynamicChoiceSets>
+    <dynamicChoiceSets>
+        <description>Delivery Location Type for Shipping Address.</description>
+        <name>ShippingAddressDeliveryLocationType</name>
+        <dataType>Picklist</dataType>
+        <displayField xsi:nil="true"/>
+        <object xsi:nil="true"/>
+        <picklistField>Delivery_Location_Type__c</picklistField>
+        <picklistObject>Shipping_Address__c</picklistObject>
+    </dynamicChoiceSets>
+    <environments>Default</environments>
+    <interviewLabel>CALM Portal - Account - Account Details {!$Flow.CurrentDateTime}</interviewLabel>
+    <isAdditionalPermissionRequiredToRun>true</isAdditionalPermissionRequiredToRun>
+    <label>CALM Portal - Blanket Sales Order - Show BSO Details</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>Flow</processType>
+    <recordLookups>
+        <description>Get all of the Blanket Sales Orders related to the current user&apos;s Contact Account ID or where they are the Primary Contact. Also filters out orders that should not be shown.</description>
+        <name>Get_Blanket_Sales_Orders</name>
+        <label>Get Blanket Sales Orders</label>
+        <locationX>182</locationX>
+        <locationY>242</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>BSO_Filters</targetReference>
+        </connector>
+        <filterLogic>(1 OR (6 AND 7)) AND 2 AND 3 AND 4 AND 5 AND 7 AND 8 AND 9 AND 10 AND 11 AND 12 AND 13</filterLogic>
+        <filters>
+            <field>Account_Name__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Input_Contact_Account_ID</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Opportunity_Type__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue>Depo</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Opp_Record_Type__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue>Sample Order Form</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Sync_Status__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue>Error - Product ID</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Status__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue>Closed</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Primary_Contact__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Input_Contact_Id</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Primary_Contact__c</field>
+            <operator>IsNull</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Status__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue>Cancelled</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Hide_BSO_From_Customer__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue>Hidden</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>RMA_Status__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue>RMA in Progress</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Status__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue>Fully Shipped</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Sync_Status__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue>Error - Account Name</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Sync_Status__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue>Error - Account &amp; Product</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>Blanket_Sales_Orders__c</object>
+        <sortField>Name</sortField>
+        <sortOrder>Asc</sortOrder>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <runInMode>SystemModeWithoutSharing</runInMode>
+    <screens>
+        <description>Shows BSO</description>
+        <name>Blanket_Sales_Orders</name>
+        <label>Blanket Sales Orders</label>
+        <locationX>314</locationX>
+        <locationY>566</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <connector>
+            <targetReference>Assign_Selected_OrderID_for_Output</targetReference>
+        </connector>
+        <fields>
+            <name>txt_Select_BSO</name>
+            <fieldText>&lt;h4&gt;Manage orders&lt;/h4&gt;&lt;p&gt;Select an Amplify Price Quote Number to request or review an allocation for your physical materials. &lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>Blanket_Sales_Orders_Section1</name>
+            <fieldType>RegionContainer</fieldType>
+            <fields>
+                <name>Blanket_Sales_Orders_Section1_Column1</name>
+                <fieldType>Region</fieldType>
+                <inputParameters>
+                    <name>width</name>
+                    <value>
+                        <stringValue>12</stringValue>
+                    </value>
+                </inputParameters>
+                <isRequired>false</isRequired>
+            </fields>
+            <isRequired>false</isRequired>
+            <regionContainerType>SectionWithoutHeader</regionContainerType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>dt_Blanket_Sales_Orders</name>
+            <dataTypeMappings>
+                <typeName>T</typeName>
+                <typeValue>Blanket_Sales_Orders__c</typeValue>
+            </dataTypeMappings>
+            <extensionName>c:datatable</extensionName>
+            <fieldType>ComponentInstance</fieldType>
+            <inputParameters>
+                <name>objectName</name>
+                <value>
+                    <stringValue>Blanket_Sales_Orders__c</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>tableData</name>
+                <value>
+                    <elementReference>Get_Blanket_Sales_Orders</elementReference>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>cb_suppressBottomBar</name>
+                <value>
+                    <stringValue>CB_FALSE</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>cb_navigateNextOnSave</name>
+                <value>
+                    <stringValue>CB_FALSE</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>columnFields</name>
+                <value>
+                    <stringValue>PQ_Number__c,Customer_Quote_Number__c,PO_Number__c,Program__c,Allocation_Status__c,Shipment_Status__c,Account_Name_Text__c,Order_End_Date__c</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>cb_matchCaseOnFilters</name>
+                <value>
+                    <stringValue>CB_FALSE</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>columnWidths</name>
+                <value>
+                    <stringValue>PQ_Number__c:0, Customer_Quote_Number__c:0, PO_Number__c:0, Program__c:0, Allocation_Status__c:0, Shipment_Status__c:0, Account_Name_Text__c:0, Order_End_Date__c:0</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>cb_isDisplayHeader</name>
+                <value>
+                    <stringValue>CB_TRUE</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>cb_isShowSearchBar</name>
+                <value>
+                    <stringValue>CB_TRUE</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>cb_tableBorder</name>
+                <value>
+                    <stringValue>CB_FALSE</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>singleRowSelection</name>
+                <value>
+                    <booleanValue>true</booleanValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>cb_singleRowSelection</name>
+                <value>
+                    <stringValue>CB_TRUE</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>cb_hideClearSelectionButton</name>
+                <value>
+                    <stringValue>CB_FALSE</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>columnFlexes</name>
+                <value>
+                    <stringValue>All</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>cb_isRequired</name>
+                <value>
+                    <stringValue>CB_TRUE</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>cb_hideCheckboxColumn</name>
+                <value>
+                    <stringValue>CB_FALSE</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>cb_not_suppressNameFieldLink</name>
+                <value>
+                    <stringValue>CB_TRUE</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>showRecordCount</name>
+                <value>
+                    <booleanValue>true</booleanValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>cb_showRecordCount</name>
+                <value>
+                    <stringValue>CB_FALSE</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>not_suppressNameFieldLink</name>
+                <value>
+                    <booleanValue>true</booleanValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>isDisplayHeader</name>
+                <value>
+                    <booleanValue>true</booleanValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>columnLabels</name>
+                <value>
+                    <stringValue>PQ_Number__c:Amplify Price Quote Number, Allocation_Status__c:Request Status, Account_Name_Text__c:Account Name</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>isShowSearchBar</name>
+                <value>
+                    <booleanValue>true</booleanValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>tableBorder</name>
+                <value>
+                    <booleanValue>true</booleanValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>columnWraps</name>
+                <value>
+                    <stringValue>PQ_Number__c:true, Customer_Quote_Number__c:true, PO_Number__c:false, Allocation_Status__c:true, Account_Name_Text__c:true, Order_End_Date__c:false</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>showPagination</name>
+                <value>
+                    <booleanValue>true</booleanValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>cb_showPagination</name>
+                <value>
+                    <stringValue>CB_TRUE</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>showRowNumbers</name>
+                <value>
+                    <booleanValue>true</booleanValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>cb_showRowNumbers</name>
+                <value>
+                    <stringValue>CB_TRUE</stringValue>
+                </value>
+            </inputParameters>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <storeOutputAutomatically>true</storeOutputAutomatically>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>Blanket_Sales_Orders_Section2</name>
+            <fieldType>RegionContainer</fieldType>
+            <fields>
+                <name>Blanket_Sales_Orders_Section2_Column1</name>
+                <fieldType>Region</fieldType>
+                <inputParameters>
+                    <name>width</name>
+                    <value>
+                        <stringValue>12</stringValue>
+                    </value>
+                </inputParameters>
+                <isRequired>false</isRequired>
+            </fields>
+            <isRequired>false</isRequired>
+            <regionContainerType>SectionWithoutHeader</regionContainerType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>Blanket_Sales_Orders_Section3</name>
+            <fieldType>RegionContainer</fieldType>
+            <fields>
+                <name>Blanket_Sales_Orders_Section3_Column1</name>
+                <fieldType>Region</fieldType>
+                <inputParameters>
+                    <name>width</name>
+                    <value>
+                        <stringValue>12</stringValue>
+                    </value>
+                </inputParameters>
+                <isRequired>false</isRequired>
+            </fields>
+            <isRequired>false</isRequired>
+            <regionContainerType>SectionWithoutHeader</regionContainerType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <fields>
+            <name>btnbar_Select_Order</name>
+            <extensionName>c:fsc_flowButtonBar</extensionName>
+            <fieldType>ComponentInstance</fieldType>
+            <inputParameters>
+                <name>alignment</name>
+                <value>
+                    <stringValue>right</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>orientation</name>
+                <value>
+                    <stringValue>horizontal</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>showLines</name>
+                <value>
+                    <stringValue>neither</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>actionMode</name>
+                <value>
+                    <stringValue>navigation</stringValue>
+                </value>
+            </inputParameters>
+            <inputParameters>
+                <name>buttons</name>
+                <value>
+                    <stringValue>[{&quot;label&quot;:&quot;Continue&quot;,&quot;value&quot;:&quot;Continue&quot;,&quot;iconPosition&quot;:&quot;left&quot;,&quot;variant&quot;:&quot;brand&quot;,&quot;index&quot;:0}]</stringValue>
+                </value>
+            </inputParameters>
+            <inputsOnNextNavToAssocScrn>UseStoredValues</inputsOnNextNavToAssocScrn>
+            <isRequired>true</isRequired>
+            <storeOutputAutomatically>true</storeOutputAutomatically>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <nextOrFinishButtonLabel>Select my quantities</nextOrFinishButtonLabel>
+        <showFooter>false</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
+        <description>Shows when a Get Record fails to find anything.</description>
+        <name>BSO_not_found</name>
+        <label>BSO not found</label>
+        <locationX>50</locationX>
+        <locationY>566</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>Copy_1_of_errorRecordNotFound</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;We were unable to locate any Orders related to your Account. If you think this is a mistake, please reach out to &lt;/span&gt;&lt;a href=&quot;https://service.amplify.com/support&quot; rel=&quot;noopener noreferrer&quot; target=&quot;_blank&quot; style=&quot;font-size: 18px;&quot;&gt;Amplify Support&lt;/a&gt;&lt;span style=&quot;font-size: 18px;&quot;&gt;.&amp;nbsp;&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <showFooter>false</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <start>
+        <locationX>56</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_User_Details</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+    <subflows>
+        <description>Launch the Create Order Allocation Request flow.</description>
+        <name>Create_Order_Allocation_Request</name>
+        <label>Create Order Allocation Request</label>
+        <locationX>314</locationX>
+        <locationY>782</locationY>
+        <flowName>CALM_Create_Order_Allocation</flowName>
+        <inputAssignments>
+            <name>INPUT_Selected_BSO_Account_Id</name>
+            <value>
+                <elementReference>Output_Selected_BSO_Account_Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>INPUT_Selected_BSO_ID</name>
+            <value>
+                <elementReference>Output_Selected_BSO_ID</elementReference>
+            </value>
+        </inputAssignments>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </subflows>
+    <subflows>
+        <description>Run the &quot;CALM Portal | Get User Details&quot; flow.
+
+Receives the Affiliated Account Ids.</description>
+        <name>Get_User_Details</name>
+        <label>Get User Details</label>
+        <locationX>182</locationX>
+        <locationY>134</locationY>
+        <connector>
+            <targetReference>Get_Blanket_Sales_Orders</targetReference>
+        </connector>
+        <flowName>CALM_Portal_Get_User_Details</flowName>
+        <outputAssignments>
+            <assignToReference>Input_Affiliated_Account_Ids</assignToReference>
+            <name>Output_Affiliated_Account_Ids</name>
+        </outputAssignments>
+        <outputAssignments>
+            <assignToReference>Input_Contact_Account_ID</assignToReference>
+            <name>Output_Contact_Account_Id</name>
+        </outputAssignments>
+        <outputAssignments>
+            <assignToReference>Input_Contact_Id</assignToReference>
+            <name>Output_Contact_Id</name>
+        </outputAssignments>
+    </subflows>
+    <textTemplates>
+        <name>Card_Body_Styling</name>
+        <isViewedAsPlainText>true</isViewedAsPlainText>
+        <text>class=&quot;btn-amplify&quot;</text>
+    </textTemplates>
+    <textTemplates>
+        <name>fm_Card_Header_Styling</name>
+        <isViewedAsPlainText>true</isViewedAsPlainText>
+        <text>background: #f47422;
+color: #fff;
+font-family: AmplifyRegular, serif;
+margin: -12px -16px;
+padding: 12px;</text>
+    </textTemplates>
+    <variables>
+        <name>currentItem_BSO_Filters</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Blanket_Sales_Orders__c</objectType>
+    </variables>
+    <variables>
+        <description>Receive the Account IDs From Affiliations variable in the starting subflow.</description>
+        <name>Input_Affiliated_Account_Ids</name>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Get the Contact Account ID</description>
+        <name>Input_Contact_Account_ID</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Store the Contact Id</description>
+        <name>Input_Contact_Id</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <description>Store the BSO Account ID for output.</description>
+        <name>Output_Selected_BSO_Account_Id</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+    <variables>
+        <description>Store the Id of the selected Order.</description>
+        <name>Output_Selected_BSO_ID</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+    <variables>
+        <description>Store the selected BSO Record for output.</description>
+        <name>Output_Selected_BSO_Record</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+        <objectType>Blanket_Sales_Orders__c</objectType>
+    </variables>
+    <variables>
+        <description>Store the recordId as a record.</description>
+        <name>recordId</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+        <objectType>Blanket_Sales_Orders__c</objectType>
+    </variables>
+    <variables>
+        <description>TEMP Shipping Address</description>
+        <name>TEMP_Shipping_Address</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Shipping_Address__c</objectType>
+    </variables>
+    <variables>
+        <description>Count how many shipping addresses were found.</description>
+        <name>var_CountShippingAddresses</name>
+        <dataType>Number</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <scale>0</scale>
+        <value>
+            <numberValue>0.0</numberValue>
+        </value>
+    </variables>
+</Flow>

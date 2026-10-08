@@ -1,0 +1,22 @@
+digraph G {
+  graph [fontname="Helvetica", rankdir=TB, bgcolor="white", pad=0.3, nodesep=0.35, ranksep=0.5, newrank=true, compound=true];
+  node [fontname="Helvetica", fontsize=10, margin="0.12,0.07"];
+  edge [fontname="Helvetica", fontsize=9, color="#607D8B", arrowsize=0.8];
+
+  start [label="Start", shape=circle, style=filled, fillcolor="#37474F", fontcolor="white", color="#37474F", width=0.5, fixedsize=true, id="Customer_Portal_Web_Form_to_Case_start"];
+  Customer_Portal_Web_Form_to_Case_New_Case [label=<<FONT POINT-SIZE="8" COLOR="#555555">SCREEN</FONT><BR/>New Case>, shape="box", style="rounded,filled", fillcolor="#E3F2FD", color="#1565C0", class="n-screen", id="Customer_Portal_Web_Form_to_Case_New_Case", penwidth="1.2"];
+  Customer_Portal_Web_Form_to_Case_New_Case_Confirmation [label=<<FONT POINT-SIZE="8" COLOR="#555555">SCREEN</FONT><BR/>New Case Confirmation>, shape="box", style="rounded,filled", fillcolor="#E3F2FD", color="#1565C0", class="n-screen", id="Customer_Portal_Web_Form_to_Case_New_Case_Confirmation", penwidth="2.6"];
+  Customer_Portal_Web_Form_to_Case_Spam_Trap [label=<<FONT POINT-SIZE="8" COLOR="#555555">SCREEN</FONT><BR/>Spam Trap>, shape="box", style="rounded,filled", fillcolor="#E3F2FD", color="#1565C0", class="n-screen", id="Customer_Portal_Web_Form_to_Case_Spam_Trap", penwidth="2.6"];
+  Customer_Portal_Web_Form_to_Case_Is_User_Logged_In [label=<Is User Logged In?>, shape="diamond", style="filled", fillcolor="#FFF8E1", color="#F9A825", class="n-decision", id="Customer_Portal_Web_Form_to_Case_Is_User_Logged_In", penwidth="1.2"];
+  Customer_Portal_Web_Form_to_Case_Route_for_Fault_Path [label=<Route for Fault<BR/>Path>, shape="diamond", style="filled", fillcolor="#FFF8E1", color="#F9A825", class="n-decision", id="Customer_Portal_Web_Form_to_Case_Route_for_Fault_Path", penwidth="1.2"];
+  Customer_Portal_Web_Form_to_Case_Was_form_submitted_too_fast [label=<Was form submitted<BR/>too fast?>, shape="diamond", style="filled", fillcolor="#FFF8E1", color="#F9A825", class="n-decision", id="Customer_Portal_Web_Form_to_Case_Was_form_submitted_too_fast", penwidth="1.2"];
+  Customer_Portal_Web_Form_to_Case_Subflow_to_Create_Case [label=<<FONT POINT-SIZE="8" COLOR="#555555">SUBFLOW</FONT><BR/>Customer Portal | Create<BR/>Case from Webform>, shape="box", style="rounded,filled", fillcolor="#EDE7F6", color="#5E35B1", class="n-subflow", peripheries="2", id="Customer_Portal_Web_Form_to_Case_Subflow_to_Create_Case", penwidth="1.2"];
+  start -> Customer_Portal_Web_Form_to_Case_Is_User_Logged_In;
+  Customer_Portal_Web_Form_to_Case_New_Case -> Customer_Portal_Web_Form_to_Case_Was_form_submitted_too_fast [];
+  Customer_Portal_Web_Form_to_Case_Is_User_Logged_In -> Customer_Portal_Web_Form_to_Case_New_Case [label="otherwise"];
+  Customer_Portal_Web_Form_to_Case_Is_User_Logged_In -> Customer_Portal_Web_Form_to_Case_New_Case [label="Guest User"];
+  Customer_Portal_Web_Form_to_Case_Route_for_Fault_Path -> Customer_Portal_Web_Form_to_Case_New_Case_Confirmation [label="No Fault"];
+  Customer_Portal_Web_Form_to_Case_Was_form_submitted_too_fast -> Customer_Portal_Web_Form_to_Case_Subflow_to_Create_Case [label="otherwise"];
+  Customer_Portal_Web_Form_to_Case_Was_form_submitted_too_fast -> Customer_Portal_Web_Form_to_Case_Spam_Trap [label="Possibly a bot"];
+  Customer_Portal_Web_Form_to_Case_Subflow_to_Create_Case -> Customer_Portal_Web_Form_to_Case_Route_for_Fault_Path [];
+}

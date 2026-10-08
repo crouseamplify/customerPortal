@@ -1,0 +1,30 @@
+digraph G {
+  graph [fontname="Helvetica", rankdir=TB, bgcolor="white", pad=0.3, nodesep=0.35, ranksep=0.5, newrank=true, compound=true];
+  node [fontname="Helvetica", fontsize=10, margin="0.12,0.07"];
+  edge [fontname="Helvetica", fontsize=9, color="#607D8B", arrowsize=0.8];
+
+  start [label="Start", shape=circle, style=filled, fillcolor="#37474F", fontcolor="white", color="#37474F", width=0.5, fixedsize=true, id="Customer_Portal_Onboarding_Checklist_start"];
+  Customer_Portal_Onboarding_Checklist_Screen_to_Redirect_to_Contact_Management_Page [label=<<FONT POINT-SIZE="8" COLOR="#555555">SCREEN</FONT><BR/>Screen to Redirect to<BR/>Contact Management Pageflow>, shape="box", style="rounded,filled", fillcolor="#E3F2FD", color="#1565C0", class="n-screen", id="Customer_Portal_Onboarding_Checklist_Screen_to_Redirect_to_Contact_Management_Page", penwidth="1.2"];
+  Customer_Portal_Onboarding_Checklist_Onboarding_Checklist_Found [label=<Onboarding<BR/>Checklist Found>, shape="diamond", style="filled", fillcolor="#FFF8E1", color="#F9A825", class="n-decision", id="Customer_Portal_Onboarding_Checklist_Onboarding_Checklist_Found", penwidth="1.2"];
+  Customer_Portal_Onboarding_Checklist_Refresh_Counts_was_selected [label=<Refresh Counts was<BR/>selected>, shape="diamond", style="filled", fillcolor="#FFF8E1", color="#F9A825", class="n-decision", id="Customer_Portal_Onboarding_Checklist_Refresh_Counts_was_selected", penwidth="1.2"];
+  Customer_Portal_Onboarding_Checklist_Get_Count_of_Contact_Types [label=<<FONT POINT-SIZE="8" COLOR="#555555">SUBFLOW</FONT><BR/>Customer Portal | Count<BR/>Contact Types>, shape="box", style="rounded,filled", fillcolor="#EDE7F6", color="#5E35B1", class="n-subflow", peripheries="2", id="Customer_Portal_Onboarding_Checklist_Get_Count_of_Contact_Types", penwidth="1.2"];
+  Customer_Portal_Onboarding_Checklist_Get_User_Details_Subflow [label=<<FONT POINT-SIZE="8" COLOR="#555555">SUBFLOW</FONT><BR/>CALM Portal | Get User<BR/>Details>, shape="box", style="rounded,filled", fillcolor="#EDE7F6", color="#5E35B1", class="n-subflow", peripheries="2", id="Customer_Portal_Onboarding_Checklist_Get_User_Details_Subflow", penwidth="1.2"];
+  Customer_Portal_Onboarding_Checklist_Create_Onboarding_Checklist_Record [label=<<FONT POINT-SIZE="8" COLOR="#555555">ACTION</FONT><BR/>Create Onboarding<BR/>Checklist Record<BR/><FONT POINT-SIZE="8" COLOR="#555555">c:CommitTransaction</FONT>>, shape="box", style="filled", fillcolor="#ECEFF1", color="#546E7A", class="n-action", id="Customer_Portal_Onboarding_Checklist_Create_Onboarding_Checklist_Record", penwidth="1.2"];
+  Customer_Portal_Onboarding_Checklist_Get_Onboarding_Checklist [label=<Get Onboarding Checklist<BR/><FONT POINT-SIZE="8" COLOR="#555555">get Onboarding Checklist</FONT>>, shape="cylinder", style="filled", fillcolor="#E0F2F1", color="#00796B", class="n-read", id="Customer_Portal_Onboarding_Checklist_Get_Onboarding_Checklist", penwidth="1.2"];
+  Customer_Portal_Onboarding_Checklist_Get_Running_User_Contact_Details [label=<Get Running User Contact<BR/>Details<BR/><FONT POINT-SIZE="8" COLOR="#555555">get Contact</FONT>>, shape="cylinder", style="filled", fillcolor="#E0F2F1", color="#00796B", class="n-read", id="Customer_Portal_Onboarding_Checklist_Get_Running_User_Contact_Details", penwidth="1.2"];
+  Customer_Portal_Onboarding_Checklist_Create_New_Onboarding_Checklist_Record [label=<Create New Onboarding<BR/>Checklist Record<BR/><FONT POINT-SIZE="8" COLOR="#555555">create Onboarding Checklist</FONT>>, shape="cylinder", style="filled", fillcolor="#C8E6C9", color="#1B5E20", class="n-write", id="Customer_Portal_Onboarding_Checklist_Create_New_Onboarding_Checklist_Record", penwidth="1.2"];
+  Customer_Portal_Onboarding_Checklist_Update_Verification_Fields_on_Onboarding_Checklist [label=<Update Verification Fields<BR/>on Onboarding Checklist<BR/><FONT POINT-SIZE="8" COLOR="#555555">update Onboarding Checklist</FONT>>, shape="cylinder", style="filled", fillcolor="#C8E6C9", color="#1B5E20", class="n-write", id="Customer_Portal_Onboarding_Checklist_Update_Verification_Fields_on_Onboarding_Checklist", penwidth="1.2"];
+  start -> Customer_Portal_Onboarding_Checklist_Get_User_Details_Subflow;
+  Customer_Portal_Onboarding_Checklist_Screen_to_Redirect_to_Contact_Management_Page -> Customer_Portal_Onboarding_Checklist_Refresh_Counts_was_selected [];
+  Customer_Portal_Onboarding_Checklist_Onboarding_Checklist_Found -> Customer_Portal_Onboarding_Checklist_Create_New_Onboarding_Checklist_Record [label="otherwise"];
+  Customer_Portal_Onboarding_Checklist_Onboarding_Checklist_Found -> Customer_Portal_Onboarding_Checklist_Get_Count_of_Contact_Types [label="Found"];
+  Customer_Portal_Onboarding_Checklist_Refresh_Counts_was_selected -> Customer_Portal_Onboarding_Checklist_Update_Verification_Fields_on_Onboarding_Checklist [label="otherwise"];
+  Customer_Portal_Onboarding_Checklist_Refresh_Counts_was_selected -> Customer_Portal_Onboarding_Checklist_Get_User_Details_Subflow [label="Refresh Counts"];
+  Customer_Portal_Onboarding_Checklist_Get_Count_of_Contact_Types -> Customer_Portal_Onboarding_Checklist_Screen_to_Redirect_to_Contact_Management_Page [];
+  Customer_Portal_Onboarding_Checklist_Get_User_Details_Subflow -> Customer_Portal_Onboarding_Checklist_Get_Running_User_Contact_Details [];
+  Customer_Portal_Onboarding_Checklist_Create_Onboarding_Checklist_Record -> Customer_Portal_Onboarding_Checklist_Get_Onboarding_Checklist [];
+  Customer_Portal_Onboarding_Checklist_Get_Onboarding_Checklist -> Customer_Portal_Onboarding_Checklist_Onboarding_Checklist_Found [];
+  Customer_Portal_Onboarding_Checklist_Get_Running_User_Contact_Details -> Customer_Portal_Onboarding_Checklist_Get_Onboarding_Checklist [];
+  Customer_Portal_Onboarding_Checklist_Create_New_Onboarding_Checklist_Record -> Customer_Portal_Onboarding_Checklist_Create_Onboarding_Checklist_Record [];
+  Customer_Portal_Onboarding_Checklist_Update_Verification_Fields_on_Onboarding_Checklist -> Customer_Portal_Onboarding_Checklist_Get_User_Details_Subflow [];
+}

@@ -1,0 +1,21 @@
+<template>
+    <div class="slds-grid slds-gutters ">
+        <div class="slds-col slds-size_2-of-8">
+            <span>{listdetailitem.Name}</span>
+        </div>
+        <div class="slds-col slds-size_4-of-8">
+            <span>{listdetailitem.Product}</span>
+        </div>
+        <div class="slds-col slds-size_2-of-8">
+            <template if:false={listdetailitem.DisplayTracking}>
+                <span>{listdetailitem.Quantity}</span>
+            </template>
+            <template if:true={listdetailitem.DisplayTracking}>
+                <span>{listdetailitem.ShippedQty}</span>
+            </template>
+        </div>
+<!--        <div class="slds-col slds-size_1-of-8">
+            <span>{listdetailitem.ShippedQty}</span>
+        </div>-->
+    </div>
+</template>

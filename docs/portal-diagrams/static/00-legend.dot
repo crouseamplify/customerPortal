@@ -1,0 +1,26 @@
+digraph G {
+  graph [fontname="Helvetica", rankdir=LR, bgcolor="white", pad=0.3, nodesep=0.35, ranksep=0.5, newrank=true, compound=true];
+  label=<<B>Legend</B>>; labelloc=t; labeljust=l; fontsize=15; fontname="Helvetica";
+  node [fontname="Helvetica", fontsize=10, margin="0.12,0.07"];
+  edge [fontname="Helvetica", fontsize=9, color="#607D8B", arrowsize=0.8];
+nodesep=0.25;
+
+    l0 [label=<Page open to guests>, shape="box", style="rounded,filled", fillcolor="#E8F5E9", color="#2E7D32", class="n-page_public"];
+    l1 [label=<Page that requires login>, shape="box", style="rounded,filled", fillcolor="#FFF3E0", color="#E65100", class="n-page_login"];
+    l2 [label=<System page>, shape="box", style="rounded,filled", fillcolor="#F2F2F2", color="#757575", class="n-page_system"];
+    l3 [label=<Screen flow placed on a page>, shape="box", style="rounded,filled", fillcolor="#D1C4E9", color="#4527A0", class="n-flow"];
+    l4 [label=<Subflow (double border)>, shape="box", style="rounded,filled", fillcolor="#EDE7F6", color="#5E35B1", class="n-subflow", peripheries="2"];
+    l5 [label=<Flow screen>, shape="box", style="rounded,filled", fillcolor="#E3F2FD", color="#1565C0", class="n-screen"];
+    l6 [label=<Decision>, shape="diamond", style="filled", fillcolor="#FFF8E1", color="#F9A825", class="n-decision"];
+    l7 [label=<Loop (dashed)>, shape="box", style="rounded,filled,dashed", fillcolor="#E8EAF6", color="#3949AB", class="n-loop"];
+    l8 [label=<Data read>, shape="cylinder", style="filled", fillcolor="#E0F2F1", color="#00796B", class="n-read"];
+    l9 [label=<Data created / updated / deleted>, shape="cylinder", style="filled", fillcolor="#C8E6C9", color="#1B5E20", class="n-write"];
+    l10 [label=<Apex or action>, shape="box", style="filled", fillcolor="#ECEFF1", color="#546E7A", class="n-action"];
+    l11 [label=<Email>, shape="box", style="filled", fillcolor="#FCE4EC", color="#AD1457", class="n-email"];
+    l12 [label=<Back-office automation (dashed)>, shape="box", style="rounded,filled,dashed", fillcolor="#FAFAFA", color="#9E9E9E", class="n-auto"];
+    l13 [label=<Person / starting point>, shape="box", style="rounded,filled", fillcolor="#FFFDE7", color="#F57F17", class="n-person"];
+    l14 [label=<Lightning web component>, shape="box", style="rounded,filled", fillcolor="#E1F5FE", color="#0277BD", class="n-lwc"];
+  note [shape=note, label=<<B>Reading flow diagrams</B><BR/>Bold border = the flow can end here.<BR/>Fault paths are not drawn: nearly every element routes<BR/>faults to the shared Fault Path Screen subflow.<BR/>* = object inferred from the element label.<BR/>Collapsed: assignments, transforms, usage-tracking and<BR/>commit actions.>, style=filled, fillcolor="#FFFFFF", color="#BDBDBD"];
+  l0 -> l1 -> l2 -> l3 -> l4 -> l5 -> l6 -> l7 [style=invis];
+  l8 -> l9 -> l10 -> l11 -> l12 -> l13 -> l14 -> note [style=invis];
+}

@@ -1,0 +1,134 @@
+@font-face{
+    font-family: BentonRegular;
+    src: url(/resource/BentonFont/benton-woff/benton-sans-regular/benton-sans-regular.woff);
+}
+
+
+
+section {
+    margin-top: 16px;
+}
+
+
+.green_marker {
+    /*--slds-g-color-neutral-base-100: #00866b;
+    --slds-g-color-neutral-base-80: #FFFFFF;*/
+    background-color: #FFFFFF;
+    border-color: #00866b;
+}
+
+/*.neutral_marker {
+    background-color: #a0a0a0;
+    border-color: #FFFFFF;
+}*/
+
+/*
+:host {
+    --slds-c-button-brand-color-background: #9C0D63;
+    --slds-c-button-brand-color-background-hover: #5E083B;
+    --slds-c-button-brand-color-border: #FFFFFF, 0;
+    --slds-c-button-brand-color-border-hover: #FFFFFF,0;
+    --slds-c-button-radius-border: 2.81px;
+    --slds-c-font-family: 'BentonRegular';
+    --slds-c-card-background: #F6F6F6;
+    
+}  */
+
+.card {
+    background: #F6F6F6;
+    /*font-family: 'BentonRegular';*/
+}  
+
+
+p {
+    /*font-family: 'BentonRegular';
+    font-size: small;
+    color: #3b3b3b;*/
+    color: var(--dxp-s-body-text-color);
+    font-family: var(--dxp-s-body-font-family);
+    font-size: var(--dxp-s-body-small-font-size);
+    font-weight: var(--dxp-s-body-font-weight);
+
+}
+
+.medium {
+    /*font-family: 'BentonRegular';
+    font-size: medium;
+    color: #3b3b3b;*/
+    color: var(--dxp-s-body-text-color);
+    font-family: var(--dxp-s-body-font-family);
+    font-size: var(--dxp-s-body-font-size);
+    font-weight: var(--dxp-s-body-font-weight);
+
+}
+
+.h2 {
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+
+
+.search-bar {
+    display: block;
+    margin: 0 0.5rem 0.3rem 0.5rem;
+}
+
+.content {
+    display: grid;
+    flex-wrap: wrap;
+    /*font-family: 'BentonRegular';*/
+    font-size: medium;
+    color: #3b3b3b;
+}
+
+c-order-status-results-tile {
+    flex: 1;
+}
+
+
+.title {
+    /*font-family: 'BentonRegular';
+    font-style: normal;
+    font-weight: bold;
+    font-size: large;*/
+    line-height: 25px;
+    /*color: #3b3b3b;*/
+    color: var(--dxp-s-body-text-color);
+    font-family: var(--dxp-s-body-font-family);
+    font-size: calc(var(--dxp-s-body-font-size) + 2px);
+    font-weight: bold;
+    
+}
+
+.colorpop {
+    --slds-c-badge-color-background: #00866b;
+    --slds-c-badge-text-color: #FFFFFF;
+    --slds-c-badge-sizing-border: 2px;
+    --slds-c-badge-radius-border: 10px;
+    --slds-c-badge-font-size: 16px;
+
+}
+
+.shipped {
+    --slds-c-badge-color-background: #e6f3f0;
+    --slds-c-badge-text-color: #00866B;
+    --slds-c-badge-radius-border: 3px;
+
+}
+
+.backordered {
+    --slds-c-badge-color-background: #FBEAE6;
+    --slds-c-badge-text-color: #DB2E00;
+}
+
+.accent{
+    /*font-family: 'BentonRegular';*/
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    /* or 150% */
+    
+    
+    color: #9C0D63;}

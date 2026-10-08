@@ -1,0 +1,43 @@
+digraph G {
+  graph [fontname="Helvetica", rankdir=TB, bgcolor="white", pad=0.3, nodesep=0.35, ranksep=0.5, newrank=true, compound=true];
+  label=<<B>Journey 1: Getting in: sign-in, recovery and where accounts come from</B>>; labelloc=t; labeljust=l; fontsize=15; fontname="Helvetica";
+  node [fontname="Helvetica", fontsize=10, margin="0.12,0.07"];
+  edge [fontname="Helvetica", fontsize=9, color="#607D8B", arrowsize=0.8];
+ranksep=0.55;
+
+  subgraph cluster_c1 { label="Visitor path"; style="rounded"; color="#B0BEC5"; fontsize=11; labeljust=l;
+    s1 [label=<Visitor opens the portal<BR/><FONT POINT-SIZE="8" COLOR="#555555">no session yet</FONT>>, shape="box", style="rounded,filled", fillcolor="#FFFDE7", color="#F57F17", class="n-person", id="s1"];
+    s2 [label=<<FONT POINT-SIZE="8" COLOR="#555555">PAGE</FONT><BR/>Home page (guest variation)<BR/><FONT POINT-SIZE="8" COLOR="#555555">Guest tiles: PO, payment, order</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">management</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">"Log In" button shown to guests</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">only</FONT>>, shape="box", style="rounded,filled", fillcolor="#E8F5E9", color="#2E7D32", class="n-page_public", id="s2"];
+    s3 [label=<<FONT POINT-SIZE="8" COLOR="#555555">PAGE</FONT><BR/>Login page<BR/><FONT POINT-SIZE="8" COLOR="#555555">login form, employee login link</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">No-Navigation theme layout</FONT>>, shape="box", style="rounded,filled", fillcolor="#E8F5E9", color="#2E7D32", class="n-page_public", id="s3"];
+    s4 [label=<<FONT POINT-SIZE="8" COLOR="#555555">PAGE</FONT><BR/>Home page (personalised)<BR/><FONT POINT-SIZE="8" COLOR="#555555">tiles + nav menu chosen by contact</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">type and tier</FONT>>, shape="box", style="rounded,filled", fillcolor="#E8F5E9", color="#2E7D32", class="n-page_public", id="s4"];
+    s5 [label=<<FONT POINT-SIZE="8" COLOR="#555555">PAGE</FONT><BR/>Forgot Password page<BR/><FONT POINT-SIZE="8" COLOR="#555555">standard reset form</FONT>>, shape="box", style="rounded,filled", fillcolor="#E8F5E9", color="#2E7D32", class="n-page_public", id="s5"];
+    s6 [label=<<FONT POINT-SIZE="8" COLOR="#555555">PAGE</FONT><BR/>Check your email page<BR/><FONT POINT-SIZE="8" COLOR="#555555">reset link arrives by email</FONT>>, shape="box", style="rounded,filled", fillcolor="#E8F5E9", color="#2E7D32", class="n-page_public", id="s6"];
+    s7 [label=<<FONT POINT-SIZE="8" COLOR="#555555">SCREEN FLOW</FONT><BR/>Request Username (modal)<BR/><FONT POINT-SIZE="8" COLOR="#555555">screen: enter email</FONT>>, shape="box", style="rounded,filled", fillcolor="#D1C4E9", color="#4527A0", class="n-flow", id="s7"];
+    s8 [label=<<FONT POINT-SIZE="8" COLOR="#555555">SUBFLOW</FONT><BR/>Find Requested Username<BR/><FONT POINT-SIZE="8" COLOR="#555555">looks up active User by email</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">is email verified?</FONT>>, shape="box", style="rounded,filled", fillcolor="#EDE7F6", color="#5E35B1", class="n-subflow", id="s8", peripheries="2"];
+    s9 [label=<<FONT POINT-SIZE="8" COLOR="#555555">EMAIL</FONT><BR/>Email to the visitor<BR/><FONT POINT-SIZE="8" COLOR="#555555">username</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">+ verification reminder if</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">unverified</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">or "no user found" notice</FONT>>, shape="box", style="filled", fillcolor="#FCE4EC", color="#AD1457", class="n-email", id="s9"];
+  }
+  subgraph cluster_c2 { label="Where accounts come from (self-registration is switched off)"; style="rounded"; color="#B0BEC5"; fontsize=11; labeljust=l;
+    b1 [label=<Sale recorded: BSO saved<BR/><FONT POINT-SIZE="8" COLOR="#555555">Blanket Sales Order</FONT>>, shape="box", style="rounded,filled", fillcolor="#FFFDE7", color="#F57F17", class="n-person", id="b1"];
+    b2 [label=<<FONT POINT-SIZE="8" COLOR="#555555">BACK-OFFICE</FONT><BR/>Invite Contact to Portal Using<BR/>BSO Status<BR/><FONT POINT-SIZE="8" COLOR="#555555">finds Materials Coordinator from</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">Opportunity contact roles; sets</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">BSO primary contact</FONT>>, shape="box", style="rounded,filled,dashed", fillcolor="#FAFAFA", color="#9E9E9E", class="n-auto", id="b2"];
+    b3 [label=<<FONT POINT-SIZE="8" COLOR="#555555">SCREEN FLOW</FONT><BR/>Contacts flow: New Contact<BR/><FONT POINT-SIZE="8" COLOR="#555555">primary contact adds a person in</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">Contact Management</FONT>>, shape="box", style="rounded,filled", fillcolor="#D1C4E9", color="#4527A0", class="n-flow", id="b3"];
+    b4 [label=<Contact saved<BR/><FONT POINT-SIZE="8" COLOR="#555555">Contact + Affiliation</FONT>>, shape="cylinder", style="filled", fillcolor="#C8E6C9", color="#1B5E20", class="n-write", id="b4"];
+    b5 [label=<<FONT POINT-SIZE="8" COLOR="#555555">BACK-OFFICE</FONT><BR/>Create Portal User From<BR/>Contact<BR/><FONT POINT-SIZE="8" COLOR="#555555">creates or reactivates User</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">assigns Customer Portal Access</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">permission set</FONT>>, shape="box", style="rounded,filled,dashed", fillcolor="#FAFAFA", color="#9E9E9E", class="n-auto", id="b5"];
+    b6 [label=<Portal User exists: can log in>, shape="box", style="rounded,filled", fillcolor="#FFFDE7", color="#F57F17", class="n-person", id="b6"];
+  }
+  s1 -> s2;
+  s2 -> s3 [label="Log In"];
+  s3 -> s4 [label="login succeeds"];
+  s3 -> s5 [style="dashed", label="forgot password"];
+  s5 -> s6;
+  s6 -> s3 [style="dashed", label="reset, then log in"];
+  s3 -> s7 [style="dashed", label="forgot username"];
+  s7 -> s8;
+  s8 -> s9;
+  s9 -> s3 [style="dashed", label="visitor now knows username"];
+  b1 -> b2;
+  b2 -> b4 [label="invites contact"];
+  b3 -> b4;
+  b4 -> b5;
+  b5 -> b6;
+  b6 -> s3 [style="dashed"];
+}

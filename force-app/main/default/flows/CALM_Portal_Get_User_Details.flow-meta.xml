@@ -1,0 +1,629 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Extract_Contact_Ids_from_Affiliations</name>
+        <label>Extract Contact Ids from Affiliations</label>
+        <locationX>314</locationX>
+        <locationY>2006</locationY>
+        <actionName>ExtractStringsFromCollection</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>Assign_ContactIds_to_output_collection</targetReference>
+        </connector>
+        <dataTypeMappings>
+            <typeName>T__inputRecordCollection</typeName>
+            <typeValue>Affiliations__c</typeValue>
+        </dataTypeMappings>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>dedupeValues</name>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>fieldAPIName</name>
+            <value>
+                <stringValue>Contact__c</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>inputRecordCollection</name>
+            <value>
+                <elementReference>Get_Affiliation_Records</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>ExtractStringsFromCollection</nameSegment>
+        <offset>0</offset>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </actionCalls>
+    <actionCalls>
+        <name>Extract_Ids_from_Accounts</name>
+        <label>Extract Ids from Accounts</label>
+        <locationX>50</locationX>
+        <locationY>866</locationY>
+        <actionName>ExtractStringsFromCollection</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>Add_Child_Account_Ids_to_Allowed_List</targetReference>
+        </connector>
+        <dataTypeMappings>
+            <typeName>T__inputRecordCollection</typeName>
+            <typeValue>Account</typeValue>
+        </dataTypeMappings>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>dedupeValues</name>
+        </inputParameters>
+        <inputParameters>
+            <name>fieldAPIName</name>
+            <value>
+                <stringValue>Id</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>inputRecordCollection</name>
+            <value>
+                <elementReference>Get_Child_Accounts</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>ExtractStringsFromCollection</nameSegment>
+        <offset>0</offset>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </actionCalls>
+    <actionCalls>
+        <name>Get_Allowed_Accounts_from_Affiliations</name>
+        <label>Get Allowed Accounts from Affiliations</label>
+        <locationX>50</locationX>
+        <locationY>1490</locationY>
+        <actionName>ExtractStringsFromCollection</actionName>
+        <actionType>apex</actionType>
+        <connector>
+            <targetReference>Add_Affiliated_Accounts_to_the_Allowed_List</targetReference>
+        </connector>
+        <dataTypeMappings>
+            <typeName>T__inputRecordCollection</typeName>
+            <typeValue>Affiliations__c</typeValue>
+        </dataTypeMappings>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters>
+            <name>dedupeValues</name>
+        </inputParameters>
+        <inputParameters>
+            <name>fieldAPIName</name>
+            <value>
+                <stringValue>Account__c</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>inputRecordCollection</name>
+            <value>
+                <elementReference>Get_Users_Affiliations</elementReference>
+            </value>
+        </inputParameters>
+        <nameSegment>ExtractStringsFromCollection</nameSegment>
+        <offset>0</offset>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </actionCalls>
+    <apiVersion>59.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <description>Add the users&apos; affiliated accounts to the allowed list of account Ids.</description>
+        <name>Add_Affiliated_Accounts_to_the_Allowed_List</name>
+        <label>Add Affiliated Accounts to the Allowed List</label>
+        <locationX>50</locationX>
+        <locationY>1598</locationY>
+        <assignmentItems>
+            <assignToReference>OUTPUT_Account_Ids</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Get_Allowed_Accounts_from_Affiliations.fieldValueCollection</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Get_Affiliation_Records</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Add the Account Ids of Child accounts to the Allowed list of Account Ids.</description>
+        <name>Add_Child_Account_Ids_to_Allowed_List</name>
+        <label>Add Child Account Ids to Allowed List</label>
+        <locationX>50</locationX>
+        <locationY>974</locationY>
+        <assignmentItems>
+            <assignToReference>OUTPUT_Account_Ids</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Extract_Ids_from_Accounts.fieldValueCollection</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Add_Child_Account_Ids_to_Collection</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Adds extracted AccountId fields to output collection of account Ids.</description>
+        <name>Add_Child_Account_Ids_to_Collection</name>
+        <label>Add Child Account Ids to Collection</label>
+        <locationX>182</locationX>
+        <locationY>1166</locationY>
+        <assignmentItems>
+            <assignToReference>OUTPUT_Account_Ids</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <elementReference>Output_Contact_Account_Id</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Get_Users_Affiliations</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <description>Assign Contact Ids to output collection</description>
+        <name>Assign_ContactIds_to_output_collection</name>
+        <label>Assign ContactIds to output collection</label>
+        <locationX>314</locationX>
+        <locationY>2114</locationY>
+        <assignmentItems>
+            <assignToReference>OUTPUT_Affiliated_ContactIDs</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Extract_Contact_Ids_from_Affiliations.fieldValueCollection</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <assignments>
+        <description>Assign values from the BSO&apos;s Primary Contact.</description>
+        <name>Assign_Primary_BSO_Contact_and_Acct_Ids</name>
+        <label>Assign Primary BSO Contact and Acct Ids</label>
+        <locationX>50</locationX>
+        <locationY>350</locationY>
+        <assignmentItems>
+            <assignToReference>Output_Contact_Id</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_BSO_Primary_Contact.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>Output_Contact_Account_Id</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_BSO_Primary_Contact.AccountId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Get_Child_Accounts</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Users_Contact_and_Acct_Ids</name>
+        <label>Assign Users Contact and Acct Ids</label>
+        <locationX>314</locationX>
+        <locationY>458</locationY>
+        <assignmentItems>
+            <assignToReference>Output_Contact_Id</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Contact_Record_for_Portal_User.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>Output_Contact_Account_Id</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Get_Contact_Record_for_Portal_User.AccountId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Get_Child_Accounts</targetReference>
+        </connector>
+    </assignments>
+    <decisions>
+        <name>Child_Accounts_Found</name>
+        <label>Child Accounts Found?</label>
+        <locationX>182</locationX>
+        <locationY>758</locationY>
+        <defaultConnector>
+            <targetReference>Add_Child_Account_Ids_to_Collection</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No Child Accounts</defaultConnectorLabel>
+        <rules>
+            <name>Yes_Has_Child_Accounts</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Child_Accounts</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Extract_Ids_from_Accounts</targetReference>
+            </connector>
+            <label>Yes, Has Child Accounts</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>If the flow is triggered by an internal user, this flow needs to get their User record and skip the step that gets info about the portal user.</description>
+        <name>Is_Flow_Triggered_by_Internal_User</name>
+        <label>Is Flow Triggered by Internal User?</label>
+        <locationX>182</locationX>
+        <locationY>134</locationY>
+        <defaultConnector>
+            <targetReference>Get_Portal_User</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Portal User</defaultConnectorLabel>
+        <rules>
+            <name>Internal_User</name>
+            <conditionLogic>or</conditionLogic>
+            <conditions>
+                <leftValueReference>IN_OUT_Internal_Trigger</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$User.ContactId</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Get_BSO_Primary_Contact</targetReference>
+            </connector>
+            <label>Internal User</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Determine if any secondary Affiliations of the user were found - if so add them to the collection of allowed accounts in the OUTPUT_AccountIds</description>
+        <name>User_Affiliations_Found</name>
+        <label>User Affiliations Found?</label>
+        <locationX>182</locationX>
+        <locationY>1382</locationY>
+        <defaultConnector>
+            <targetReference>Get_Affiliation_Records</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No Secondary Affiliations</defaultConnectorLabel>
+        <rules>
+            <name>Yes_Has_Secondary_Affiliations</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Users_Affiliations</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Get_Allowed_Accounts_from_Affiliations</targetReference>
+            </connector>
+            <label>Yes, Has Secondary Affiliations</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <description>Checks to see if an Affiliation Record was found or not.</description>
+        <name>Was_an_Affiliation_Record_Found</name>
+        <label>Was an Affiliation Record Found?</label>
+        <locationX>182</locationX>
+        <locationY>1898</locationY>
+        <defaultConnector>
+            <targetReference>Extract_Contact_Ids_from_Affiliations</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Affiliations Found</defaultConnectorLabel>
+        <rules>
+            <name>No_Affiliation_Founds</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Affiliation_Records</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <label>No Affiliations Found</label>
+        </rules>
+    </decisions>
+    <description>1/9/26 - [RFS23-11976] Change Status in Get User Affiliations to &quot;Does not equal Former&quot; to improve retrieval of Affiliations.
+5/30/25 - [RFS23-9160] - Added accounts affiliated to the user to allowed list. 
+
+Get details about the user, their contact, and account. Separated from other flows for better security.
+
+4/3/25 - [RFS23-8954] Fix issue with contacts not loading properly for the Ship To contact in the modal. Fixed the decision path for when the flow is run by an internal user VS a portal user so that the correct contacts/users are referenced for identifying the contacts to show.
+
+12/31/24 - Add variables to support use by internal Amplify users.
+
+3/26 - Get Accounts and Child Accounts - No longer getting affiliations.
+4/1 - updated to pass collection of Account IDs instead of string value of IDs.</description>
+    <environments>Default</environments>
+    <formulas>
+        <description>Initial Affiliation Description when the record is created automatically.</description>
+        <name>frm_affiliationDescription</name>
+        <dataType>String</dataType>
+        <expression>&apos;This Affiliation was created automatically on &apos; &amp;
+TEXT(MONTH({!$Flow.CurrentDate}))&amp;&quot;/&quot;&amp;TEXT(DAY({!$Flow.CurrentDate}))&amp;&quot;/&quot;&amp;TEXT(YEAR({!$Flow.CurrentDate})) &amp; &apos; when &apos; &amp; {!Get_Contact_Record_for_Portal_User.FirstName} &amp; &apos; &apos; &amp; {!Get_Contact_Record_for_Portal_User.LastName} &amp; &apos; accessed the Order management page.&apos;</expression>
+    </formulas>
+    <interviewLabel>CALM Portal | Get User Details {!$Flow.CurrentDateTime}</interviewLabel>
+    <isAdditionalPermissionRequiredToRun>true</isAdditionalPermissionRequiredToRun>
+    <label>CALM Portal | Get User Details</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <description>Get the Affiliation Records for the Users&apos; Account Id and any Child Account Ids that are NOT Primary affiliations (secondary only) and the status is current. - For the Contacts collection.</description>
+        <name>Get_Affiliation_Records</name>
+        <label>Get Affiliation Records</label>
+        <locationX>182</locationX>
+        <locationY>1790</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Was_an_Affiliation_Record_Found</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Account__c</field>
+            <operator>In</operator>
+            <value>
+                <elementReference>OUTPUT_Account_Ids</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Primary__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Status__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <stringValue>Current</stringValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>Affiliations__c</object>
+        <sortField>Id</sortField>
+        <sortOrder>Asc</sortOrder>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <description>Get the Contact record for the Primary Contact on the BSO. Used for the internal path only.</description>
+        <name>Get_BSO_Primary_Contact</name>
+        <label>Get BSO Primary Contact</label>
+        <locationX>50</locationX>
+        <locationY>242</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Assign_Primary_BSO_Contact_and_Acct_Ids</targetReference>
+        </connector>
+        <filterLogic>or</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>IN_BSO_Primary_Contact_ID</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Contact</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <description>Get accounts where the ParentId = the Contacts&apos; Account Id, gets all children of the parents&apos; account.</description>
+        <name>Get_Child_Accounts</name>
+        <label>Get Child Accounts</label>
+        <locationX>182</locationX>
+        <locationY>650</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Child_Accounts_Found</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>ParentId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Output_Contact_Account_Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>Account</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <description>Get the Contact Record for the Portal User.</description>
+        <name>Get_Contact_Record_for_Portal_User</name>
+        <label>Get Contact Record for Portal User</label>
+        <locationX>314</locationX>
+        <locationY>350</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Assign_Users_Contact_and_Acct_Ids</targetReference>
+        </connector>
+        <filterLogic>or</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Get_Portal_User.ContactId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Contact</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <description>Get details for the current user.</description>
+        <name>Get_Portal_User</name>
+        <label>Get Portal User</label>
+        <locationX>314</locationX>
+        <locationY>242</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Get_Contact_Record_for_Portal_User</targetReference>
+        </connector>
+        <filterLogic>or</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$User.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>User</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <recordLookups>
+        <description>Get additional accounts that the User is Affiliated with - this collection of Accounts can be added to the OUTPUT_AccountIds of authorized accounts.</description>
+        <name>Get_Users_Affiliations</name>
+        <label>Get Users Affiliations</label>
+        <locationX>182</locationX>
+        <locationY>1274</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>User_Affiliations_Found</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Status__c</field>
+            <operator>NotEqualTo</operator>
+            <value>
+                <stringValue>Former</stringValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Contact__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>Output_Contact_Id</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Primary__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <getFirstRecordOnly>false</getFirstRecordOnly>
+        <object>Affiliations__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <runInMode>SystemModeWithoutSharing</runInMode>
+    <start>
+        <locationX>56</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Is_Flow_Triggered_by_Internal_User</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+    <variables>
+        <description>Receive the Primary Contact ID from the BSO. This will be sent when this flow is triggered by an Amplify internal user.</description>
+        <name>IN_BSO_Primary_Contact_ID</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue></stringValue>
+        </value>
+    </variables>
+    <variables>
+        <description>This variable will be set to TRUE when this flow is triggered by an internal Amplify user. This value is passed through the subflows.</description>
+        <name>IN_OUT_Internal_Trigger</name>
+        <dataType>Boolean</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <booleanValue>false</booleanValue>
+        </value>
+    </variables>
+    <variables>
+        <name>Need_Affils</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <stringValue></stringValue>
+        </value>
+    </variables>
+    <variables>
+        <name>OUTPUT_Account_Collection</name>
+        <dataType>SObject</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Account</objectType>
+    </variables>
+    <variables>
+        <description>collection of Account Ids to pass back to Contact Flow</description>
+        <name>OUTPUT_Account_Ids</name>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+    <variables>
+        <description>Store the Account IDs from Affiliation Records.</description>
+        <name>Output_Affiliated_Account_Ids</name>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+    <variables>
+        <description>Store the Affiliated Contact Account IDs</description>
+        <name>Output_Affiliated_Contact_Account_Id</name>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+    <variables>
+        <description>Collection of Contact Ids that are currently affiliated to the Accounts the user has access to.</description>
+        <name>OUTPUT_Affiliated_ContactIDs</name>
+        <dataType>String</dataType>
+        <isCollection>true</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+    <variables>
+        <description>Store the Contact&apos;s Account ID for output.</description>
+        <name>Output_Contact_Account_Id</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+    <variables>
+        <description>Output the contact ID</description>
+        <name>Output_Contact_Id</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+</Flow>

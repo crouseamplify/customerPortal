@@ -1,0 +1,87 @@
+@font-face{
+    font-family: BentonRegular;
+    src: url(/resource/BentonFont/benton-woff/benton-sans-regular/benton-sans-regular.woff);
+}
+
+
+.content {
+    padding: 2px;
+    background-color: #FFFFFF;
+    border-radius: 3px;
+    margin: 20px;
+    /*font-family: 'BentonRegular';*/
+    color: #3b3b3b;
+    border-color: #3b3b3b;
+}
+
+p {
+    /*font-family: 'BentonRegular';*/
+    font-size: small;
+    color: #3b3b3b;
+
+}
+
+a {
+    color: inherit;
+}
+
+img.product {
+    height: 120px;
+    max-width: initial;
+    pointer-events: none;
+}
+
+.title {
+    /*font-family: 'BentonRegular';*/
+    /*font-style: normal;
+    font-weight: 350;
+    font-size: 18px;*/
+    line-height: 25px;
+    /*color: #3B3B3B;*/
+    color: var(--dxp-s-body-text-color);
+    font-family: var(--dxp-s-body-font-family);
+    font-size: calc(var(--dxp-s-body-font-size) + 2px);
+    font-weight: bold;
+    
+}
+
+.shipped {
+    --slds-c-badge-color-background: #e6f3f0;
+    --slds-c-badge-text-color: #00866B;
+    font-style: bold;
+    --slds-c-badge-radius-border: 3px;
+
+}
+
+.backordered {
+    --slds-c-badge-color-background: #FBEAE6;
+    --slds-c-badge-text-color: #DB2E00;
+    /*font-family: 'BentonRegular';*/
+}
+
+/*
+.statushighlight {
+font-family: 'Benton Sans';
+font-style: normal;
+font-weight: 500;
+font-size: 18px;
+line-height: 25px;
+color:#00866B;
+background:#E6F3F0; */
+/* identical to box height, or 127% */
+
+
+/* messaging-green/01-green */
+
+/* } */
+
+.accent{
+    /*font-family: 'BentonRegular';*/
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    /* or 150% */
+    
+    
+    color: #9C0D63;}

@@ -1,0 +1,43 @@
+<template>
+    <div class="slds-card slds-var-p-around_large">      
+            <section>
+            <h1 class="title">Individual deliveries:</h1>
+            <br/>
+
+ <!--      *** check flags for display of data and messages ***  
+         <p>multiship flag= {multiship}</p>
+            <p>showdata flag= {showdata}</p>
+            <p>nodata flag= {nodata}</p>
+        --> 
+        <template lwc:if={multiship}>
+    <p><em>To allow for an on time delivery, your materials order will arrive as a split shipment. </em></p>
+    <p><em> Review the details on this page for more information.</em></p>
+        </template>
+        <template lwc:else>
+        </template>
+
+            
+<div class="slds-var-p-around_large">
+    <template lwc:if={showdata}>
+        <template for:each={orderHeader} for:item="order">
+                            <lightning-card key={order.Id} status={order.Status} >
+                                <p slot="title" class="medium">{order.Name}</p>
+
+                            <c-order-status-results-tile listdata={order} headerid={order.DetailFilter} groupitem={order.GroupItem} filters={filters}
+                            class="slds-var-m-around_x-small" >
+                             </c-order-status-results-tile>
+                            </lightning-card>                      
+            </template>     
+        </template>
+    <template lwc:elseif={nodata}>
+                    <p>No data is available. </p><br/>
+                    <p>For any questions regarding your order, contact <lightning-formatted-email value="help@amplify.com" onclick={handleHelpEmailClick}></lightning-formatted-email>.</p>
+            </template>    
+    <template lwc:else>     
+    </template>      
+        
+            </div>
+        </section>
+
+    </div>
+</template>

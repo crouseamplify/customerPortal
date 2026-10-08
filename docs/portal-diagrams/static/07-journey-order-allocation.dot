@@ -1,0 +1,31 @@
+digraph G {
+  graph [fontname="Helvetica", rankdir=TB, bgcolor="white", pad=0.3, nodesep=0.35, ranksep=0.5, newrank=true, compound=true];
+  label=<<B>Journey 4: Order allocation lifecycle</B>>; labelloc=t; labeljust=l; fontsize=15; fontname="Helvetica";
+  node [fontname="Helvetica", fontsize=10, margin="0.12,0.07"];
+  edge [fontname="Helvetica", fontsize=9, color="#607D8B", arrowsize=0.8];
+ranksep=0.55;
+
+    a0 [label=<<FONT POINT-SIZE="8" COLOR="#555555">PAGE · LOGIN REQUIRED</FONT><BR/>Order Management -&gt; Orders tab<BR/><FONT POINT-SIZE="8" COLOR="#555555">materials contact</FONT>>, shape="box", style="rounded,filled", fillcolor="#FFF3E0", color="#E65100", class="n-page_login", id="a0"];
+    a1 [label=<<FONT POINT-SIZE="8" COLOR="#555555">SCREEN FLOW</FONT><BR/>Show BSO Details<BR/><FONT POINT-SIZE="8" COLOR="#555555">table of Blanket Sales Orders</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">none found -&gt; "BSO not found"</FONT>>, shape="box", style="rounded,filled", fillcolor="#D1C4E9", color="#4527A0", class="n-flow", id="a1"];
+    a2 [label=<<FONT POINT-SIZE="8" COLOR="#555555">SUBFLOW</FONT><BR/>Create Order Allocation<BR/>Request<BR/><FONT POINT-SIZE="8" COLOR="#555555">existing requests, or start a new</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">one</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">creates OAR + first allocation</FONT>>, shape="box", style="rounded,filled", fillcolor="#EDE7F6", color="#5E35B1", class="n-subflow", id="a2", peripheries="2"];
+    a3 [label=<<FONT POINT-SIZE="8" COLOR="#555555">SUBFLOW</FONT><BR/>Edit Order Allocations<BR/><FONT POINT-SIZE="8" COLOR="#555555">quantities per product and site</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">save and stay, conflict + over-</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">allocation checks</FONT>>, shape="box", style="rounded,filled", fillcolor="#EDE7F6", color="#5E35B1", class="n-subflow", id="a3", peripheries="2"];
+    a4 [label=<<FONT POINT-SIZE="8" COLOR="#555555">SUBFLOW</FONT><BR/>Order Allocation Modal<BR/><FONT POINT-SIZE="8" COLOR="#555555">per-site delivery logistics</FONT>>, shape="box", style="rounded,filled", fillcolor="#EDE7F6", color="#5E35B1", class="n-subflow", id="a4", peripheries="2"];
+    a4a [label=<<FONT POINT-SIZE="8" COLOR="#555555">SUBFLOW</FONT><BR/>Edit Shipping Address<BR/><FONT POINT-SIZE="8" COLOR="#555555">required fields missing?</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">address in use -&gt; clone and repoint</FONT>>, shape="box", style="rounded,filled", fillcolor="#EDE7F6", color="#5E35B1", class="n-subflow", id="a4a", peripheries="2"];
+    a5 [label=<Materials contact?>, shape="diamond", style="filled", fillcolor="#FFF8E1", color="#F9A825", class="n-decision", id="a5"];
+    a5b [label=<<FONT POINT-SIZE="8" COLOR="#555555">SCREEN</FONT><BR/>Not Materials Contact<BR/><FONT POINT-SIZE="8" COLOR="#555555">cannot submit</FONT>>, shape="box", style="rounded,filled", fillcolor="#E3F2FD", color="#1565C0", class="n-screen", id="a5b"];
+    a6 [label=<<FONT POINT-SIZE="8" COLOR="#555555">SUBFLOW</FONT><BR/>Submit an Allocation Request<BR/><FONT POINT-SIZE="8" COLOR="#555555">verify and submit -&gt; final</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">confirmation</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">thank you (or thank internal</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">support)</FONT>>, shape="box", style="rounded,filled", fillcolor="#EDE7F6", color="#5E35B1", class="n-subflow", id="a6", peripheries="2"];
+    a7 [label=<Order Allocations, OAR, BSO<BR/><FONT POINT-SIZE="8" COLOR="#555555">status set to submitted</FONT>>, shape="cylinder", style="filled", fillcolor="#C8E6C9", color="#1B5E20", class="n-write", id="a7"];
+    a8 [label=<<FONT POINT-SIZE="8" COLOR="#555555">AUTOMATION</FONT><BR/>Back-office<BR/><FONT POINT-SIZE="8" COLOR="#555555">confirmation email on OAR</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">submission</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">internal support case</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">status sync, reminders</FONT>>, shape="box", style="rounded,filled,dashed", fillcolor="#FAFAFA", color="#9E9E9E", class="n-auto", id="a8"];
+    a9 [label=<<FONT POINT-SIZE="8" COLOR="#555555">IN DEVELOPMENT</FONT><BR/>Order Allocation Manager (LWC)<BR/><FONT POINT-SIZE="8" COLOR="#555555">new component on /omp</FONT><BR/><FONT POINT-SIZE="8" COLOR="#555555">mock data today; not linked in nav</FONT>>, shape="box", style="rounded,filled,dashed", fillcolor="#E1F5FE", color="#0277BD", class="n-lwc", id="a9"];
+  a0 -> a1;
+  a1 -> a2 [label="select a BSO"];
+  a2 -> a3 [label="edit"];
+  a3 -> a4 [style="dashed", label="configure site"];
+  a4 -> a4a [style="dashed"];
+  a3 -> a5 [label="confirm"];
+  a5 -> a5b [label="no"];
+  a5 -> a6 [label="yes"];
+  a6 -> a7;
+  a7 -> a8 [style="dashed"];
+  a9 -> a1 [style="dotted", label="intended replacement"];
+}

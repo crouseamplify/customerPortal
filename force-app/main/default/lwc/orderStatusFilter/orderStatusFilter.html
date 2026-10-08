@@ -1,0 +1,120 @@
+<template>
+
+    <div class="card slds-var-p-around_large ">
+        <section>
+           
+      <div class="slds-grid slds-gutters slds-grid_vertical-align-center ">
+      <div class="slds-col brand"> 
+        <span>
+    <h1 class="title">Order overview</h1><br/>
+    <p> Your order has been divided into:</p><br/>
+    <p class="medium"> <lightning-badge label={shipments.total} class="colorpop"></lightning-badge> Shipment(s)</p><br/>
+        </span>
+
+        <span>
+
+            <lightning-input
+                label ="Search"
+                type="search"
+                variant="label-hidden"
+                placeholder="Search by key word, product or ISBN"
+                onchange={handleSearchKeyChange}
+                is-loading={isLoading}>
+            </lightning-input>
+                
+        </span>
+        <br/>
+
+        <span>
+          <!--  <template lwc:if={statusOptions}>   -->
+                <lightning-combobox
+                    label="Status"
+                    name="types"
+                    placeholder="Filter by Status"
+                    value={value}
+                    variant="label-hidden"                    
+                    options={statusOptions}
+                    onchange={handleStatusSelect}></lightning-combobox>
+          <!--  </template>   -->
+        </span>
+
+    </div>
+    <div class="slds-col"><span>    
+  
+    
+    <div class="slds-progress slds-progress_vertical">
+        <ol class="slds-progress__list">
+        <li class="slds-progress__item ">
+        <div class="slds-progress__marker">
+        <span class="slds-assistive-text">Ordered</span>
+        </div>
+        <div class="slds-progress__item_content slds-grid slds-grid_align-spread">Ordered</div>
+        </li>
+
+        <li class="slds-progress__item">  
+        <div class={pclass}>
+        <span class="slds-assistive-text">Preparing your Order</span>
+        </div>
+        <div class="slds-progress__item_content slds-grid slds-grid_align-spread">Preparing your order: {shipments.processing} shipment(s)</div>
+        </li>
+
+
+        <li class="slds-progress__item">
+        <div class={sclass}>
+            <span class="slds-assistive-text">Shipped</span>
+        </div>
+        <div class="slds-progress__item_content slds-grid slds-grid_align-spread">Shipped: {shipments.shipped} shipment(s)</div>
+        </li>
+
+
+        <li class="slds-progress__item">
+        <div class={dclass}>
+            <span class="slds-assistive-text">Delivered</span>
+        </div>
+        <div class="slds-progress__item_content slds-grid slds-grid_align-spread">Delivered: {shipments.delivered} shipment(s)</div>
+        </li>
+
+
+        </ol>
+        <div aria-valuemin="0" aria-valuemax="100" aria-valuenow="25" role="progressbar">
+        <span class="slds-assistive-text">Progress: 25%</span>
+        </div>
+        </div>
+
+
+    </span>
+</div>
+  
+     </div>
+    </section>
+     
+    </div>  
+
+ <!--   <lightning-card>
+        <div class="slds-grid slds-wrap slds-var-p-around_small slds-gutters">
+
+            <div class="slds-col">
+                <span>
+                    <lightning-input
+                        label="Search"
+                        type="search"
+                        onchange={handleSearchKeyChange}></lightning-input>
+                </span>
+            </div>
+
+            <div class="slds-col">
+               <span>
+                    <template lwc:if={status.data}>
+                        <lightning-combobox
+                            label="Status"
+                            name="types"
+                            value={value}
+                            options={status.data.values}
+                            onchange={handleStatusSelect}></lightning-combobox>
+                    </template>
+                </span>
+            </div>
+        </div>
+    </lightning-card>  -->
+
+</template>
