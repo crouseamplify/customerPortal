@@ -1,7 +1,0 @@
-{
-  "name": "portal-diagram-tools",
-  "private": true,
-  "description": "Renders portal DOT diagrams to SVG/PNG without a system Graphviz install",
-  "type": "module",
-  "dependencies": { "@resvg/resvg-js": "^2.6.2", "@viz-js/viz": "^3.11.0" }
-}
