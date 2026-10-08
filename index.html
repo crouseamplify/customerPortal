@@ -155,7 +155,7 @@ function viewer(host, svgText, onNode) {
   const api = { svg, stage, fit, select(id) { svg.querySelectorAll('g.node.sel').forEach(n => n.classList.remove('sel')); const n = id && svg.querySelector('#'+CSS.escape(id)); if (n) n.classList.add('sel'); },
     focus(id) { const n = svg.querySelector('#'+CSS.escape(id)); if (!n) return; const nr = n.getBoundingClientRect(), sr = stage.getBoundingClientRect();
       const cx = (nr.left + nr.width/2 - sr.left) / k, cy = (nr.top + nr.height/2 - sr.top) / k;
-      k = Math.max(.85, Math.min(1.2, k)); x = host.clientWidth/2 - cx*k; y = host.clientHeight/2 - cy*k; apply(); },
+      x = host.clientWidth/2 - cx*k; y = host.clientHeight/2 - cy*k; apply(); },
     dim(ids) { svg.classList.add('dimmed'); svg.querySelectorAll('.hl').forEach(n => n.classList.remove('hl')); ids.forEach(id => { const n = svg.querySelector('#'+CSS.escape(id)); if (n) n.classList.add('hl'); });
       svg.querySelectorAll('g.edge').forEach(e => { const t = e.querySelector('title'); if (!t) return; const parts = t.textContent.split('->'); if (parts.length===2 && ids.includes(parts[0]) && ids.includes(parts[1])) e.classList.add('hl'); }); },
     undim() { svg.classList.remove('dimmed'); svg.querySelectorAll('.hl').forEach(n => n.classList.remove('hl')); } };
